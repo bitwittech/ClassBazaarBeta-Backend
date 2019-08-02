@@ -1,23 +1,22 @@
 import { Router } from 'express';
-var MongoClient = require('mongodb').MongoClient;
+
+const MongoClient = require('mongodb').MongoClient;
+
 const mongoDBUrl =
   'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
 const dbName = 'heroku_h05wbcsj';
 const collectionName = 'edx';
 const router = new Router();
-var dbo;
+let dbo;
 
-MongoClient.connect(mongoDBUrl, function(err, db) {
+MongoClient.connect(mongoDBUrl, (err, db) => {
   dbo = db.db(dbName);
 });
 
-const renameProp = (oldProp, newProp, { [oldProp]: old, ...others }) => {
-  debugger;
-  return {
-    [newProp]: old,
-    ...others,
-  };
-};
+const renameProp = (oldProp, newProp, { [oldProp]: old, ...others }) => ({
+  [newProp]: old,
+  ...others,
+});
 
 router.get('/api/courses/edx', async (req, res) => {
   let st, en;
@@ -43,9 +42,7 @@ router.get('/api/courses/edx', async (req, res) => {
 
   if (dbo === undefined) {
     console.log('Still undefined');
-    dbo = await MongoClient.connect(mongoDBUrl, function(err, db) {
-      return db.db(dbName);
-    });
+    dbo = await MongoClient.connect(mongoDBUrl, (err, db) => db.db(dbName));
   }
   dbo
     .collection(collectionName)
@@ -54,8 +51,8 @@ router.get('/api/courses/edx', async (req, res) => {
     .limit(en - st)
     .toArray((err, result) => {
       if (err) res.send({ data: [], total: 0 });
-      let finalresult = result.map(r => {
-        let d = renameProp('uuid', 'id', r);
+      const finalresult = result.map(r => {
+        const d = renameProp('uuid', 'id', r);
         d.review = 'Not Provided';
         return d;
       });

@@ -19,11 +19,12 @@ RUN set -ex; \
   touch yarn-error.log; \
   mkdir -m 777 build; \
   yarn install --no-cache --frozen-lockfile; \
-  chown -R node:node build node_modules package.json yarn.lock yarn-error.log; \
+  sudo chown -R root:root .; \
+  chown -R root:root build node_modules package.json yarn.lock yarn-error.log; \
   else \
   touch yarn-error.log; \
   mkdir -p -m 777 build node_modules /home/node/.cache/yarn; \
-  chown -R node:node build node_modules package.json yarn.lock yarn-error.log /home/node/.cache/yarn; \
+  chown -R root:root build node_modules package.json yarn.lock yarn-error.log /home/node/.cache/yarn; \
   fi;
 
 # Copy application files
@@ -35,6 +36,6 @@ COPY locales ./locales/
 COPY .env build* ./build/
 
 # Run the container under "node" user by default
-USER node
+USER root
 
 CMD [ "node", "build/server.js" ]

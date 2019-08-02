@@ -1,14 +1,16 @@
 import { Router } from 'express';
-var MongoClient = require('mongodb').MongoClient;
+
+const MongoClient = require('mongodb').MongoClient;
+
 const mongoDBUrl =
   'mongodb://heroku_dqm24gt4:v8bt06l52npc8gkj9ucmji86hi@ds255107.mlab.com:55107/heroku_dqm24gt4';
 const dbName = 'heroku_dqm24gt4';
 const collectionName = 'udemy';
 
 const router = new Router();
-var dbo;
+let dbo;
 
-MongoClient.connect(mongoDBUrl, function(err, db) {
+MongoClient.connect(mongoDBUrl, (err, db) => {
   dbo = db.db(dbName);
 });
 
@@ -38,9 +40,7 @@ router.get('/api/courses/udemy', async (req, res) => {
 
   if (dbo === undefined) {
     console.log('Still undefined');
-    dbo = await MongoClient.connect(mongoDBUrl, function(err, db) {
-      return db.db(dbName);
-    });
+    dbo = await MongoClient.connect(mongoDBUrl, (err, db) => db.db(dbName));
   }
   dbo
     .collection(collectionName)
