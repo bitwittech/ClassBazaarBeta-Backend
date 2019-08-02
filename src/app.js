@@ -33,6 +33,9 @@ import schema from './schema';
 import Context from './Context';
 import errors from './errors';
 
+import edxRoutes from './routes/edx';
+import udemyRoutes from './routes/udemy';
+
 i18next
   .use(LanguageDetector)
   .use(i18nextBackend)
@@ -56,18 +59,18 @@ const app = express();
 
 app.set('trust proxy', 'loopback');
 
-app.use(
-  cors({
-    origin(origin, cb) {
-      const whitelist = process.env.CORS_ORIGIN
-        ? process.env.CORS_ORIGIN.split(',')
-        : [];
-      cb(null, whitelist.includes(origin));
-    },
-    credentials: true,
-  }),
-);
-
+// app.use(
+//   cors({
+//     origin(origin, cb) {
+//       const whitelist = process.env.CORS_ORIGIN
+//         ? process.env.CORS_ORIGIN.split(',')
+//         : [];
+//       cb(null, whitelist.includes(origin));
+//     },
+//     credentials: true,
+//   }),
+// );
+app.use(cors());
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));
@@ -87,6 +90,8 @@ app.use(passport.session());
 app.use(flash());
 
 app.use(accountRoutes);
+app.use(edxRoutes);
+app.use(udemyRoutes);
 
 // The following routes are intended to be used in development mode only
 if (process.env.NODE_ENV !== 'production') {

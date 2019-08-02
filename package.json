@@ -25,6 +25,7 @@
     "jest": "^22.0.0",
     "juice": "^4.2.2",
     "knex": "^0.14.2",
+    "mongodb": "^3.3.0-beta2",
     "node-fetch": "^1.7.3",
     "nodemailer": "^4.4.1",
     "passport": "^0.4.0",
@@ -66,10 +67,6 @@
     "setupTestFrameworkScriptFile": "<rootDir>/tools/jest.setup.js"
   },
   "lint-staged": {
-    "*.js": [
-      "eslint --no-ignore --fix",
-      "git add --force"
-    ],
     "*.json": [
       "prettier --write",
       "git add --force"
