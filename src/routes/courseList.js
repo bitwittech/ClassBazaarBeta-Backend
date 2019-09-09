@@ -51,6 +51,7 @@ router.get('/api/course/', async (req, res) => {
       'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
     dbName = 'heroku_h05wbcsj';
     collectionName = 'futureLearn';
+    key = 'uuid';
   } else {
     res.send({ data: [] });
   }
