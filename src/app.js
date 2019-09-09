@@ -35,6 +35,7 @@ import errors from './errors';
 
 import edxRoutes from './routes/edx';
 import udemyRoutes from './routes/udemy';
+import courseListRoutes from './routes/courseList';
 
 i18next
   .use(LanguageDetector)
@@ -92,6 +93,7 @@ app.use(flash());
 app.use(accountRoutes);
 app.use(edxRoutes);
 app.use(udemyRoutes);
+app.use(courseListRoutes);
 
 // The following routes are intended to be used in development mode only
 if (process.env.NODE_ENV !== 'production') {

@@ -11,10 +11,14 @@ import knex from 'knex';
 
 const db = knex({
   client: 'pg',
-  connection: process.env.DATABASE_URL,
-  migrations: {
-    tableName: 'migrations',
+  connection: {
+    port: '5432',
+    host: '159.89.53.9',
+    user: 'postgres',
+    password: 'docker',
+    database: 'postgres',
   },
+  pool: { min: 0, max: 25 },
   debug: process.env.DATABASE_DEBUG === 'true',
 });
 
