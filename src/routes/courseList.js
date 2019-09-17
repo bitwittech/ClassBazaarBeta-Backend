@@ -6,18 +6,20 @@ const router = new Router();
 
 router.get('/api/courses/', async (req, res) => {
   let st, en;
-  if (req.query.sort === undefined) {
+  console.log(req.query.range);
+  if (req.query.sort === undefined && req.query.range === undefined) {
     st = 0;
     en = 25;
   } else {
     console.log('inside else');
     try {
-      const totalLength = req.query.sort.length - 4;
+      // const totalLength = req.query.sort.length - 4;
       const range = JSON.parse(req.query.range);
-      const sort = req.query.sort
-        .replace(/[/'"]+/g, '')
-        .substring(1, totalLength - 1)
-        .split(',');
+      console.log(range);
+      // const sort = req.query.sort
+      //   .replace(/[/'"]+/g, '')
+      //   .substring(1, totalLength - 1)
+      //   .split(',');
       const filter = req.query.filter;
       st = range[0];
       en = range[1];
@@ -26,12 +28,23 @@ router.get('/api/courses/', async (req, res) => {
     }
   }
 
+  console.log({ st }, { en });
+
   db
     .table('data')
-    .orderBy('ranking_points', 'desc')
-    .limit(en - st)
-    .then(result => {
-      res.send({ data: result, total: 1500 });
+    .count('index as CNT')
+    .then(function(total) {
+      return total[0].CNT;
+    })
+    .then(t => {
+      db
+        .table('data')
+        .orderBy('ranking_points', 'desc')
+        .limit(en - st)
+        .offset(st)
+        .then(result => {
+          res.send({ data: result, total: t });
+        });
     });
 });
 
