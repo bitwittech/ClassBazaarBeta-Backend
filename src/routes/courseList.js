@@ -1,26 +1,27 @@
 import { Router } from 'express';
 import db from '../db';
+import { filter } from 'rxjs/operators';
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 const router = new Router();
 
 router.get('/api/courses/', async (req, res) => {
-  let st, en;
-  console.log(req.query.range);
+  let st, en, searchQuery, filter;
+  console.log(req.query);
   if (req.query.sort === undefined && req.query.range === undefined) {
     st = 0;
     en = 25;
   } else {
     console.log('inside else');
     try {
-      // const totalLength = req.query.sort.length - 4;
       const range = JSON.parse(req.query.range);
+      searchQuery = req.query['q'];
+      filter = req.query.filter;
       console.log(range);
       // const sort = req.query.sort
       //   .replace(/[/'"]+/g, '')
       //   .substring(1, totalLength - 1)
       //   .split(',');
-      const filter = req.query.filter;
       st = range[0];
       en = range[1];
     } catch (e) {
@@ -28,7 +29,7 @@ router.get('/api/courses/', async (req, res) => {
     }
   }
 
-  console.log({ st }, { en });
+  console.log({ st }, { en }, { searchQuery });
 
   db
     .table('data')
@@ -39,6 +40,20 @@ router.get('/api/courses/', async (req, res) => {
     .then(t => {
       db
         .table('data')
+        .where(qb => {
+          if (searchQuery !== '' && filter === '') {
+            console.log('here');
+            qb.where('title', 'ilike', `%${searchQuery}%`);
+          }
+
+          // if (searchCriteria.itemType) {
+          //   qb.orWhere('items.itemType', '=', searchCriteria.itemType);
+          // }
+
+          // if (searchCriteria.category) {
+          //   qb.orWhere('items.category', '=', searchCriteria.category);
+          // }
+        })
         .orderBy('ranking_points', 'desc')
         .limit(en - st)
         .offset(st)
