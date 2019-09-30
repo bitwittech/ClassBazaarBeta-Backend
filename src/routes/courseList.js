@@ -17,7 +17,7 @@ router.get('/api/courses/', async (req, res) => {
       const range = JSON.parse(req.query.range);
       searchQuery = req.query['q'];
       filter = req.query.filter;
-      console.log(range);
+      console.log(filter);
       // const sort = req.query.sort
       //   .replace(/[/'"]+/g, '')
       //   .substring(1, totalLength - 1)
@@ -42,17 +42,22 @@ router.get('/api/courses/', async (req, res) => {
         .table('data')
         .where(qb => {
           if (searchQuery !== '' && filter === '') {
-            console.log('here');
             qb.where('title', 'ilike', `%${searchQuery}%`);
           }
 
-          // if (searchCriteria.itemType) {
-          //   qb.orWhere('items.itemType', '=', searchCriteria.itemType);
-          // }
+          if (filter === 'price:free') {
+            console.log('Query for free courses');
+            qb.havingNull('price');
+          }
 
-          // if (searchCriteria.category) {
-          //   qb.orWhere('items.category', '=', searchCriteria.category);
-          // }
+          if (filter === 'start:flexible') {
+            console.log('Query for flexible start date');
+            qb.where('is_flexible', '=', true);
+          }
+          if (filter === 'certificates') {
+            console.log('Query for certificates');
+            qb.where('has_paid_certificates', '=', true);
+          }
         })
         .orderBy('ranking_points', 'desc')
         .limit(en - st)
