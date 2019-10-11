@@ -47,7 +47,7 @@ router.get('/api/courses/', async (req, res) => {
 
           if (filter === 'price:free') {
             console.log('Query for free courses');
-            qb.havingNull('price');
+            qb.whereNull('price');
           }
 
           if (filter === 'start:flexible') {
