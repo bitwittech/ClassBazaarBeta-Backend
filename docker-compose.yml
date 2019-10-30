@@ -11,7 +11,7 @@ services:
         NODE_ENV: development
     hostname: api
     depends_on:
-      - db
+      # - db
       - redis
     environment:
       - CORS_ORIGIN=http://localhost:3000,http://localhost:3001
@@ -21,8 +21,8 @@ services:
       - SESSION_SECRET=wZjwhFtzQsd7r87W6AZw45Sm
       - FACEBOOK_ID=1821424564802638
       - FACEBOOK_SECRET=2339bdf25f236a42fc3a18280bf455e8
-      - GOOGLE_ID=xxxxx.apps.googleusercontent.com
-      - GOOGLE_SECRET=xxxxx
+      - GOOGLE_ID=844357402268-ihn8eo096oqq60irm9sb1gn6n4uh1mf6.apps.googleusercontent.com
+      - GOOGLE_SECRET=IFWufMIOQ5opON-pNIKZhec5
       - TWITTER_KEY=xxxxx
       - TWITTER_SECRET=xxxxx
     ports:
@@ -46,17 +46,17 @@ services:
     command: node tools/run.js # or, `node --inspect=0.0.0.0:9229 tools/run.js`
 
   # SQL and document data store
-  db:
-    image: postgres:9.6.6-alpine
-    read_only: true
-    tmpfs:
-      - /tmp
-      - /var/run/postgresql
-    volumes:
-      - db:/var/lib/postgresql/data
-      - ./postgres-initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
-    ports:
-      - "127.0.0.1:5432:5432" # you can override it via docker-compose.override.yml
+  # db:
+  #   image: postgres:9.6.6-alpine
+  #   read_only: true
+  #   tmpfs:
+  #     - /tmp
+  #     - /var/run/postgresql
+  #   volumes:
+  #     # - db:/var/lib/postgresql/data
+  #     - ./postgres-initdb.sh:/docker-entrypoint-initdb.d/initdb.sh
+  #   ports:
+  #     - "127.0.0.1:5432:5432" # you can override it via docker-compose.override.yml
 
   # Distributed in-memory cache
   redis:

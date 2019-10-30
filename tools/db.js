@@ -16,7 +16,15 @@ const command = process.argv[2];
 
 const config = {
   client: 'pg',
-  connection: process.env.DATABASE_URL,
+  connection: {
+    port: '5432',
+    host: '159.89.53.9',
+    user: 'postgres',
+    password: 'docker',
+    database: 'postgres',
+  },
+  pool: { min: 0, max: 25 },
+  debug: process.env.DATABASE_DEBUG === 'true',
   migrations: {
     tableName: 'migrations',
   },

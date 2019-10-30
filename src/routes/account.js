@@ -11,6 +11,8 @@ import URL from 'url';
 import passport from 'passport';
 import validator from 'validator';
 import { Router } from 'express';
+var bcrypt = require('bcryptjs');
+import db from './../db';
 
 const router = new Router();
 
@@ -23,7 +25,11 @@ const loginProviders = [
   },
   {
     provider: 'google',
-    options: { scope: 'profile email', accessType: 'offline' },
+    options: {
+      scope: 'profile email',
+      accessType: 'offline',
+      userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo',
+    },
   },
   {
     provider: 'twitter',
@@ -78,6 +84,7 @@ loginProviders.forEach(({ provider, options }) => {
   router.get(
     `/login/${provider}`,
     (req, res, next) => {
+      console.log(`Inside ${provider}`);
       req.session.returnTo = getSuccessRedirect(req);
       next();
     },
@@ -95,6 +102,62 @@ loginProviders.forEach(({ provider, options }) => {
       failureRedirect: `${getOrigin(req.session.returnTo)}/login`,
     })(req, res, next),
   );
+});
+
+router.post(
+  '/login',
+  (req, res, next) => {
+    req.session.returnTo = getSuccessRedirect(req);
+    next();
+  },
+  passport.authenticate('local', {
+    failWithError: true,
+  }),
+  (req, res, next) => {
+    res.status(200).json({
+      status: 'Login successful!',
+    });
+  },
+  (err, req, res, next) => {
+    // Handle error
+    return res.status(401).send({ success: false, message: err });
+  },
+);
+
+router.post('/register', (req, res) => {
+  const name = req.body.name;
+  const email = req.body.email;
+  const password = req.body.password;
+  console.log(req.body);
+  const hash = bcrypt.hashSync(password, bcrypt.genSaltSync(10), null);
+
+  const user = {
+    display_name: name,
+    password_hash: hash,
+  };
+
+  db
+    .table('users')
+    .insert(user)
+    .returning('id')
+    .then(rows =>
+      db
+        .table('users')
+        .where('id', '=', rows[0])
+        .first()
+        .then(u =>
+          db
+            .table('emails')
+            .insert({
+              user_id: u.id,
+              email: email,
+            })
+            .then(() => u),
+        ),
+    )
+    .then(r => {
+      res.send({ statu: 'success' });
+    });
 });
 
 // Remove the `user` object from the session. Example:

@@ -12,6 +12,8 @@ import passport from 'passport';
 import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
 import { Strategy as TwitterStrategy } from 'passport-twitter';
+var LocalStrategy = require('passport-local').Strategy;
+var bcrypt = require('bcryptjs');
 
 import db from './db';
 
@@ -209,6 +211,29 @@ passport.use(
       }
     },
   ),
+);
+
+passport.use(
+  new LocalStrategy((email, password, cb) => {
+    console.log('Inside local strategy', email, password);
+    db
+      .table('users')
+      .innerJoin('emails', 'emails.user_id', 'users.id')
+      .where({
+        'emails.email': email,
+      })
+      .first('users.*')
+      .then(user => {
+        console.log(user);
+        if (!user || user === undefined) cb(null, false);
+        else {
+          const result = bcrypt.compareSync(password, user.password_hash);
+          console.log(result);
+          if (result) cb(null, user);
+          else cb(null, false);
+        }
+      });
+  }),
 );
 
 export default passport;
