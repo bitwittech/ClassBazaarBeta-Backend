@@ -102,9 +102,7 @@ router.get('/api/course/', async (req, res) => {
       .first()
       .then(course => {
         console.log(course);
-        provider = course.provider;
-        uuid = course.uuid;
-        return;
+        res.send({ data: course });
       });
   }
   console.log(provider, uuid);
