@@ -8,14 +8,13 @@
 /* @flow */
 /* eslint-disable no-param-reassign, no-underscore-dangle, max-len */
 
-import passport from 'passport';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as FacebookStrategy } from 'passport-facebook';
+import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
 import { Strategy as TwitterStrategy } from 'passport-twitter';
+import db from './db';
+import passport from 'passport';
 var LocalStrategy = require('passport-local').Strategy;
 var bcrypt = require('bcryptjs');
-
-import db from './db';
 
 passport.serializeUser((user, done) => {
   done(null, {
@@ -216,8 +215,7 @@ passport.use(
 passport.use(
   new LocalStrategy((email, password, cb) => {
     console.log('Inside local strategy', email, password);
-    db
-      .table('users')
+    db.table('users')
       .innerJoin('emails', 'emails.user_id', 'users.id')
       .where({
         'emails.email': email,
@@ -228,7 +226,7 @@ passport.use(
         if (!user || user === undefined) cb(null, false);
         else {
           const result = bcrypt.compareSync(password, user.password_hash);
-          console.log(result);
+          console.log('Pass matched? ::', result);
           if (result) cb(null, user);
           else cb(null, false);
         }

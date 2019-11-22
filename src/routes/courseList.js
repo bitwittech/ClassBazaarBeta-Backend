@@ -3,6 +3,7 @@ import db from '../db';
 import { filter } from 'rxjs/operators';
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
+var ObjectId = require('mongodb').ObjectId;
 const router = new Router();
 
 router.get('/api/courses/', async (req, res) => {
@@ -89,8 +90,25 @@ router.get('/api/courses/', async (req, res) => {
 
 router.get('/api/course/', async (req, res) => {
   console.log(req.query);
-  const provider = req.query.provider;
-  const uuid = req.query.uuid;
+
+  let provider = req.query.provider;
+  let uuid = req.query.uuid;
+
+  const courseID = req.query.index;
+  if (courseID !== undefined) {
+    await db
+      .table('data')
+      .where({ index: courseID })
+      .first()
+      .then(course => {
+        console.log(course);
+        provider = course.provider;
+        uuid = course.uuid;
+        return;
+      });
+  }
+  console.log(provider, uuid);
+
   let mongoDBURL, dbName, collectionName, key;
   if (provider === 'EDx') {
     mongoDBURL =
@@ -104,6 +122,20 @@ router.get('/api/course/', async (req, res) => {
     dbName = 'heroku_h05wbcsj';
     collectionName = 'futureLearn';
     key = 'uuid';
+  } else if (provider === 'SimpliLearn') {
+    mongoDBURL =
+      'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
+    dbName = 'heroku_glmmwlk5';
+    collectionName = 'simplilearn';
+    key = '_id';
+    uuid = new ObjectId(uuid.substring(1, uuid.length - 1));
+  } else if (provider === 'Udemy') {
+    mongoDBURL =
+      'mongodb://classbazaar:classbazaar-password@142.93.69.69:27017/classbazaar-test';
+    dbName = 'classbazaar-test';
+    collectionName = 'udemy';
+    key = '_id';
+    uuid = new ObjectId(uuid.substring(1, uuid.length - 1));
   } else {
     res.send({ data: [] });
   }
@@ -115,6 +147,8 @@ router.get('/api/course/', async (req, res) => {
     var query = {};
     query[key] = uuid;
     collection.findOne(query, (err, result) => {
+      console.log({ err });
+      console.log({ result });
       res.send({ data: result });
     });
   });
@@ -169,7 +203,7 @@ router.get('/api/getSubjects', async (req, res) => {
 
 router.get('/api/getProviders', async (req, res) => {
   res.send({
-    data: ['EDx', 'FutureLearn'],
+    data: ['EDx', 'FutureLearn', 'SimpliLearn', 'Udemy'],
   });
 });
 
@@ -177,20 +211,20 @@ router.get('/api/getProviders', async (req, res) => {
 router.put('/api/user/bookmark', async (req, res) => {
   const action = req.body.action;
   const course = req.body.course;
+  console.log(req.user);
   if (action === 'add') {
-    db
-      .table('users')
+    db.table('users')
       .where('id', '=', req.user.id)
       .first()
       .then(u => {
-        const newBookmarks = u.bookmarks;
-        newBookmarks.push(course);
-        if (!u.bookmarks.include(course)) {
-          db
-            .table('users')
+        if (u.bookmarks === null || u.bookmarks.indexOf(course) < 0) {
+          let newBookmarks = u.bookmarks;
+          if (newBookmarks === null) newBookmarks = [];
+          newBookmarks.push(course);
+          db.table('users')
             .where('id', '=', req.user.id)
             .first()
-            .update(bookmarks, newBookmarks)
+            .update({ bookmarks: newBookmarks })
             .then(f => {
               res.send({ status: 'success', message: 'Bookmark added' });
             });
@@ -199,24 +233,24 @@ router.put('/api/user/bookmark', async (req, res) => {
         }
       });
   } else if (action === 'remove') {
-    db
-      .table('users')
+    db.table('users')
       .where('id', '=', req.user.id)
       .first()
       .then(u => {
+        console.log(u.bookmarks);
+        console.log(u.bookmarks.indexOf(course));
         // Removing bookmark from the old list
-        const newBookmarks = u.bookmarks;
-        const index = newBookmarks.indexOf(course);
-        if (index > -1) {
-          newBookmarks.splice(index, 1);
-        }
+        if (u.bookmarks !== null && u.bookmarks.indexOf(course) >= 0) {
+          const newBookmarks = u.bookmarks;
+          const index = newBookmarks.indexOf(course);
+          if (index > -1) {
+            newBookmarks.splice(index, 1);
+          }
 
-        if (u.bookmarks.include(course)) {
-          db
-            .table('users')
+          db.table('users')
             .where('id', '=', req.user.id)
             .first()
-            .update(bookmarks, newBookmarks)
+            .update({ bookmarks: newBookmarks })
             .then(f => {
               res.send({ status: 'success', message: 'Bookmark removed' });
             });
@@ -231,9 +265,9 @@ router.put('/api/user/bookmark', async (req, res) => {
 
 // Gets bookmarked courses for the user
 router.get('/api/user/bookmark', async (req, res) => {
+  console.log(req.user.id);
   try {
-    db
-      .table('users')
+    db.table('users')
       .where('id', '=', req.user.id)
       .first()
       .then(u => {
