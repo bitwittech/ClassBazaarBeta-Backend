@@ -126,14 +126,12 @@ router.get('/api/course/', async (req, res) => {
     dbName = 'heroku_glmmwlk5';
     collectionName = 'simplilearn';
     key = '_id';
-    uuid = new ObjectId(uuid.substring(1, uuid.length - 1));
   } else if (provider === 'Udemy') {
     mongoDBURL =
       'mongodb://classbazaar:classbazaar-password@142.93.69.69:27017/classbazaar-test';
     dbName = 'classbazaar-test';
     collectionName = 'udemy';
     key = '_id';
-    uuid = new ObjectId(uuid.substring(1, uuid.length - 1));
   } else {
     res.send({ data: [] });
   }
