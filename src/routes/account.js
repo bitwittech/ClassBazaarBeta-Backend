@@ -7,12 +7,12 @@
 
 /* @flow */
 
+import { Router } from 'express';
 import URL from 'url';
+import db from './../db';
 import passport from 'passport';
 import validator from 'validator';
-import { Router } from 'express';
 var bcrypt = require('bcryptjs');
-import db from './../db';
 
 const router = new Router();
 
@@ -114,8 +114,10 @@ router.post(
     failWithError: true,
   }),
   (req, res, next) => {
+    console.log('Successful login', req.cookies);
     res.status(200).json({
       status: 'Login successful!',
+      token: req.cookies.sid,
     });
   },
   (err, req, res, next) => {
@@ -136,8 +138,7 @@ router.post('/register', (req, res) => {
     password_hash: hash,
   };
 
-  db
-    .table('users')
+  db.table('users')
     .insert(user)
     .returning('id')
     .then(rows =>

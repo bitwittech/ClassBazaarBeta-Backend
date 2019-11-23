@@ -269,7 +269,11 @@ router.get('/api/user/bookmark', async (req, res) => {
       .where('id', '=', req.user.id)
       .first()
       .then(u => {
-        res.send({ data: u.bookmarks });
+        db.table('data')
+          .where('index', 'IN', u.bookmarks)
+          .then(bookmarks => {
+            res.send({ data: bookmarks });
+          });
       });
   } catch (e) {
     res.send({ data: [] });
