@@ -7,35 +7,34 @@
 
 /* @flow */
 
-import path from 'path';
-import express from 'express';
-import cors from 'cors';
-import compression from 'compression';
-import cookieParser from 'cookie-parser';
-import bodyParser from 'body-parser';
-import session from 'express-session';
-import connectRedis from 'connect-redis';
-import flash from 'express-flash';
-import i18next from 'i18next';
 import i18nextMiddleware, {
   LanguageDetector,
 } from 'i18next-express-middleware';
-import i18nextBackend from 'i18next-node-fs-backend';
-import expressGraphQL from 'express-graphql';
-import PrettyError from 'pretty-error';
-import { printSchema } from 'graphql';
 
-import email from './email';
-import redis from './redis';
-import passport from './passport';
-import accountRoutes from './routes/account';
-import schema from './schema';
 import Context from './Context';
-import errors from './errors';
-
-import edxRoutes from './routes/edx';
-import udemyRoutes from './routes/udemy';
+import PrettyError from 'pretty-error';
+import accountRoutes from './routes/account';
+import bodyParser from 'body-parser';
+import compression from 'compression';
+import connectRedis from 'connect-redis';
+import cookieParser from 'cookie-parser';
+import cors from 'cors';
 import courseListRoutes from './routes/courseList';
+import edxRoutes from './routes/edx';
+import email from './email';
+import errors from './errors';
+import express from 'express';
+import expressGraphQL from 'express-graphql';
+import flash from 'express-flash';
+import i18next from 'i18next';
+import i18nextBackend from 'i18next-node-fs-backend';
+import passport from './passport';
+import path from 'path';
+import { printSchema } from 'graphql';
+import redis from './redis';
+import schema from './schema';
+import session from 'express-session';
+import udemyRoutes from './routes/udemy';
 
 i18next
   .use(LanguageDetector)
@@ -71,7 +70,15 @@ app.set('trust proxy', 'loopback');
 //     credentials: true,
 //   }),
 // );
-app.use(cors());
+app.use(
+  cors({
+    origin: function(origin, callback) {
+      return callback(null, true);
+    },
+    optionsSuccessStatus: 200,
+    credentials: true,
+  }),
+);
 app.use(compression());
 app.use(cookieParser());
 app.use(bodyParser.urlencoded({ extended: true }));

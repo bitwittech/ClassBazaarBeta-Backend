@@ -85,6 +85,7 @@ loginProviders.forEach(({ provider, options }) => {
     `/login/${provider}`,
     (req, res, next) => {
       console.log(`Inside ${provider}`);
+
       req.session.returnTo = getSuccessRedirect(req);
       next();
     },
@@ -107,6 +108,7 @@ loginProviders.forEach(({ provider, options }) => {
 router.post(
   '/login',
   (req, res, next) => {
+    console.log(req.sessionID);
     req.session.returnTo = getSuccessRedirect(req);
     next();
   },
@@ -114,7 +116,7 @@ router.post(
     failWithError: true,
   }),
   (req, res, next) => {
-    console.log('Successful login', req.cookies);
+    console.log(req.sessionID);
     res.status(200).json({
       status: 'Login successful!',
       token: req.cookies.sid,
