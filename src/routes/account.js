@@ -56,7 +56,7 @@ function isValidReturnURL(url: string) {
       require_tld: false,
       require_protocol: true,
       protocols: ['http', 'https'],
-    }) && whitelist.includes(getOrigin(url))
+    }) && whitelist.s(getOrigin(url))
   );
 }
 
@@ -72,10 +72,12 @@ function getSuccessRedirect(req) {
   const url = req.query.return || req.body.return || '/';
   if (!isValidReturnURL(url)) return '/';
   if (!getOrigin(url)) return url;
+  var hour = 360000000;
+  req.session.cookie.expires = new Date(Date.now() + hour);
+  req.session.cookie.maxAge = hour;
+  const maxAge = 60 * 60 * 1000;
   return `${url}${url.includes('?') ? '&' : '?'}sessionID=${req.cookies.sid}${
-    req.session.cookie.originalMaxAge
-      ? `&maxAge=${req.session.cookie.originalMaxAge}`
-      : ''
+    maxAge ? `&maxAge=${maxAge}` : ''
   }`;
 }
 

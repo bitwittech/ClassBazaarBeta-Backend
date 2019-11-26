@@ -85,11 +85,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
   session({
-    store: new (connectRedis(session))({ client: redis }),
+    store: new (connectRedis(session))({ client: redis, ttl: 6000000 }),
     name: 'sid',
     resave: true,
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET,
+    cookie: { maxAge: 60000000 },
   }),
 );
 app.use(i18nextMiddleware.handle(i18next));
@@ -159,6 +160,7 @@ pe.skipNodeFiles();
 pe.skipPackage('express');
 
 app.use((err, req, res, next) => {
+  console.log('session:\n', req.session);
   process.stderr.write(pe.render(err));
   next();
 });
