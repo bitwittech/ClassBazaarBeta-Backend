@@ -263,7 +263,7 @@ router.put('/api/user/bookmark', async (req, res) => {
 
 // Gets bookmarked courses for the user
 router.get('/api/user/bookmark', async (req, res) => {
-  console.log(req.user.id);
+  console.log(req.user);
   try {
     db.table('users')
       .where('id', '=', req.user.id)

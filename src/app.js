@@ -85,12 +85,12 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(bodyParser.json());
 app.use(
   session({
-    store: new (connectRedis(session))({ client: redis, ttl: 6000000 }),
+    store: new (connectRedis(session))({ client: redis, ttl: 6000000000 }),
     name: 'sid',
     resave: true,
     saveUninitialized: true,
     secret: process.env.SESSION_SECRET,
-    cookie: { maxAge: 60000000 },
+    cookie: { maxAge: 60000000000 },
   }),
 );
 app.use(i18nextMiddleware.handle(i18next));

@@ -72,10 +72,9 @@ function getSuccessRedirect(req) {
   const url = req.query.return || req.body.return || '/';
   if (!isValidReturnURL(url)) return '/';
   if (!getOrigin(url)) return url;
-  var hour = 360000000;
-  req.session.cookie.expires = new Date(Date.now() + hour);
+  var maxAge = 60 * 60 * 1000 * 1000;
+  req.session.cookie.expires = new Date(Date.now() + maxAge);
   req.session.cookie.maxAge = hour;
-  const maxAge = 60 * 60 * 1000;
   return `${url}${url.includes('?') ? '&' : '?'}sessionID=${req.cookies.sid}${
     maxAge ? `&maxAge=${maxAge}` : ''
   }`;
