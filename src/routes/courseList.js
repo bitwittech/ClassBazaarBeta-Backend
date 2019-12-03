@@ -108,7 +108,7 @@ router.get('/api/course/', async (req, res) => {
   console.log(provider, uuid);
 
   let mongoDBURL, dbName, collectionName, key;
-  if (provider === 'EDx') {
+  if (provider === 'edX') {
     mongoDBURL =
       'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
     dbName = 'heroku_h05wbcsj';
@@ -125,6 +125,20 @@ router.get('/api/course/', async (req, res) => {
       'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
     dbName = 'heroku_glmmwlk5';
     collectionName = 'simplilearn';
+    key = '_id';
+    uuid = new ObjectId(uuid);
+  } else if (provider === 'upGrad') {
+    mongoDBURL =
+      'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
+    dbName = 'heroku_h05wbcsj';
+    collectionName = 'upgrad';
+    key = '_id';
+    uuid = new ObjectId(uuid);
+  } else if (provider === 'Udacity') {
+    mongoDBURL =
+      'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
+    dbName = 'heroku_glmmwlk5';
+    collectionName = 'udacity';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'Udemy') {
