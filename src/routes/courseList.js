@@ -148,6 +148,13 @@ router.get('/api/course/', async (req, res) => {
     collectionName = 'udemy';
     key = '_id';
     uuid = new ObjectId(uuid);
+  } else if (provider === 'Swayam') {
+    mongoDBURL =
+      'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
+    dbName = 'heroku_glmmwlk5';
+    collectionName = 'swayam-new';
+    key = '_id';
+    uuid = new ObjectId(uuid);
   } else {
     res.send({ data: [] });
   }
