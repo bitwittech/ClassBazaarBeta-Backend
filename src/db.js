@@ -18,7 +18,15 @@ const db = knex({
     password: 'docker',
     database: 'postgres',
   },
-  pool: { min: 1, max: 25, idleTimeoutMillis: 86400 * 1000 },
+
+  pool: {
+    min: 1,
+    max: 25,
+    idleTimeoutMillis: 86400 * 1000,
+    ping: function(conn, cb) {
+      conn.query('SELECT 1', cb);
+    },
+  },
   debug: process.env.DATABASE_DEBUG === 'true',
 });
 
