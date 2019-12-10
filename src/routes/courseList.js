@@ -8,7 +8,14 @@ const router = new Router();
 
 router.get('/api/courses/', async (req, res) => {
   console.log('user', req.user);
-  let st, en, searchQuery, filter, subjectFilter, provider;
+  let st,
+    en,
+    searchQuery,
+    filter,
+    subjectFilter,
+    provider,
+    feeFilter,
+    startDateFilter;
   console.log(req.query);
   if (req.query.sort === undefined && req.query.range === undefined) {
     st = 0;
@@ -19,6 +26,8 @@ router.get('/api/courses/', async (req, res) => {
       const range = JSON.parse(req.query.range);
       searchQuery = req.query['q'];
       filter = req.query.filter;
+      feeFilter = req.query.feeFilter;
+      startDateFilter = req.query.startDateFilter;
       provider = req.query.provider;
       subjectFilter = req.query.subjects;
       // const sort = req.query.sort
@@ -62,14 +71,35 @@ router.get('/api/courses/', async (req, res) => {
       });
     }
 
-    if (filter === 'price:free') {
+    if (feeFilter === 'price:free') {
       console.log('Query for free courses');
       qb.whereNull('price');
     }
 
-    if (filter === 'start:flexible') {
+    if (feeFilter === 'price:paid') {
+      console.log('Query for free courses');
+      qb.whereNotNull('price');
+    }
+
+    if (startDateFilter === 'start:flexible') {
       console.log('Query for flexible start date');
       qb.where('is_flexible', '=', true);
+    }
+
+    if (startDateFilter === 'start:lte30') {
+      console.log('Query for flexible start date with lte30');
+      var future = new Date();
+      future.setDate(future.getDate() + 30);
+      qb.where('start_date', '<=', future);
+      // .orWhere('is_flexible', '=', true);
+    }
+
+    if (startDateFilter === 'start:gte30') {
+      console.log('Query for flexible start date with gte30');
+      var future = new Date();
+      future.setDate(future.getDate() + 30);
+      qb.where('start_date', '>=', future);
+      // .orWhere('is_flexible', '=', true);
     }
 
     if (filter === 'certificates') {
