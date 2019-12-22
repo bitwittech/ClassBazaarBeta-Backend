@@ -35,6 +35,7 @@ import redis from './redis';
 import schema from './schema';
 import session from 'express-session';
 import udemyRoutes from './routes/udemy';
+import userRoutes from './routes/users';
 
 i18next
   .use(LanguageDetector)
@@ -102,6 +103,7 @@ app.use(accountRoutes);
 app.use(edxRoutes);
 app.use(udemyRoutes);
 app.use(courseListRoutes);
+app.use(userRoutes);
 
 // The following routes are intended to be used in development mode only
 if (process.env.NODE_ENV !== 'production') {

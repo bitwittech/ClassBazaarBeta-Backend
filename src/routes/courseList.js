@@ -118,6 +118,17 @@ router.get('/api/courses/', async (req, res) => {
   res.send({ data, total: totalCount[0]['count'] });
 });
 
+router.get('/api/bookmarks/', async (req, res) => {
+  let bookmarks = JSON.parse(req.query.data);
+  const dataModel = db.table('data').where(qb => {
+    bookmarks.forEach((obj, index) => {
+      qb.orWhere({ uuid: obj.id, provider: obj.provider });
+    });
+  });
+  const data = await dataModel.orderBy('ranking_points', 'desc');
+  res.send({ data });
+});
+
 router.get('/api/course/', async (req, res) => {
   console.log(req.query);
 
@@ -255,86 +266,5 @@ router.get('/api/getProviders', async (req, res) => {
     data: ['EDx', 'FutureLearn', 'SimpliLearn', 'Udemy'],
   });
 });
-
-// Adds/Removes bookmark based on `action` param
-router.put('/api/user/bookmark', async (req, res) => {
-  const action = req.body.action;
-  const course = req.body.course;
-  console.log(req.user);
-  if (action === 'add') {
-    db.table('users')
-      .where('id', '=', req.user.id)
-      .first()
-      .then(u => {
-        if (u.bookmarks === null || u.bookmarks.indexOf(course) < 0) {
-          let newBookmarks = u.bookmarks;
-          if (newBookmarks === null) newBookmarks = [];
-          newBookmarks.push(course);
-          db.table('users')
-            .where('id', '=', req.user.id)
-            .first()
-            .update({ bookmarks: newBookmarks })
-            .then(f => {
-              res.send({ status: 'success', message: 'Bookmark added' });
-            });
-        } else {
-          res.send({ status: 'success', message: 'Bookmark already added' });
-        }
-      });
-  } else if (action === 'remove') {
-    db.table('users')
-      .where('id', '=', req.user.id)
-      .first()
-      .then(u => {
-        console.log(u.bookmarks);
-        console.log(u.bookmarks.indexOf(course));
-        // Removing bookmark from the old list
-        if (u.bookmarks !== null && u.bookmarks.indexOf(course) >= 0) {
-          const newBookmarks = u.bookmarks;
-          const index = newBookmarks.indexOf(course);
-          if (index > -1) {
-            newBookmarks.splice(index, 1);
-          }
-
-          db.table('users')
-            .where('id', '=', req.user.id)
-            .first()
-            .update({ bookmarks: newBookmarks })
-            .then(f => {
-              res.send({ status: 'success', message: 'Bookmark removed' });
-            });
-        } else {
-          res.send({ status: 'success', message: 'Bookmark already removed' });
-        }
-      });
-  } else {
-    res.send({ message: 'Not a valid action' });
-  }
-});
-
-// Gets bookmarked courses for the user
-router.get('/api/user/bookmark', async (req, res) => {
-  console.log(req.user);
-  try {
-    db.table('users')
-      .where('id', '=', req.user.id)
-      .first()
-      .then(u => {
-        db.table('data')
-          .where('index', 'IN', u.bookmarks)
-          .then(bookmarks => {
-            res.send({ data: bookmarks });
-          });
-      });
-  } catch (e) {
-    res.send({ data: [] });
-  }
-});
-
-// Adds/Removes review based on `action` param
-router.put('/api/user/review', async (req, res) => {});
-
-// Gets reviews for the user
-router.get('/api/user/reviews', async (req, res) => {});
 
 export default router;
