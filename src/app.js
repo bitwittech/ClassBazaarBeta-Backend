@@ -21,7 +21,6 @@ import cookieParser from 'cookie-parser';
 import cors from 'cors';
 import courseListRoutes from './routes/courseList';
 import edxRoutes from './routes/edx';
-import email from './email';
 import errors from './errors';
 import express from 'express';
 import expressGraphQL from 'express-graphql';

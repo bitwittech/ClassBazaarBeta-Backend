@@ -30,6 +30,7 @@
     "mongodb": "^3.3.0-beta2",
     "node-fetch": "^1.7.3",
     "nodemailer": "^4.4.1",
+    "nodemailer-sendgrid-transport": "^0.2.0",
     "passport": "^0.4.0",
     "passport-facebook": "^2.1.1",
     "passport-google-oauth20": "^2.0.0",

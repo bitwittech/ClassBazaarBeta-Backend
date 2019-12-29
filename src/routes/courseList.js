@@ -1,6 +1,7 @@
 import { Router } from 'express';
 import db from '../db';
 import { filter } from 'rxjs/operators';
+import mailers from './../email';
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
@@ -45,7 +46,11 @@ router.get('/api/courses/', async (req, res) => {
 
   const dataModel = db.table('data').where(qb => {
     if (searchQuery !== '' && filter === '') {
-      qb.where('title', 'ilike', `%${searchQuery}%`);
+      qb.where('title', 'ilike', `%${searchQuery}%`).orWhere(
+        'university',
+        'ilike',
+        `%${searchQuery}%`,
+      );
     }
 
     if (provider !== 'all') {
@@ -265,6 +270,19 @@ router.get('/api/getProviders', async (req, res) => {
   res.send({
     data: ['EDx', 'FutureLearn', 'SimpliLearn', 'Udemy'],
   });
+});
+
+router.post('/api/contact', (req, res) => {
+  console.log(req.query);
+  console.log(req.body);
+  const { name, email, phone, subject, text } = req.body;
+  mailer({ name, email, phone, subject, text })
+    .then(() => {
+      res.send('success');
+    })
+    .catch(error => {
+      res.status(422).send(error);
+    });
 });
 
 export default router;
