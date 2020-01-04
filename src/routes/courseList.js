@@ -1,7 +1,7 @@
 import { Router } from 'express';
 import db from '../db';
 import { filter } from 'rxjs/operators';
-import mailers from './../email';
+import mailer from './../email';
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
@@ -273,10 +273,8 @@ router.get('/api/getProviders', async (req, res) => {
 });
 
 router.post('/api/contact', (req, res) => {
-  console.log(req.query);
-  console.log(req.body);
-  const { name, email, phone, subject, text } = req.body;
-  mailer({ name, email, phone, subject, text })
+  const { name, email, subject, message } = req.body;
+  mailer({ name, email, subject, message })
     .then(() => {
       res.send('success');
     })
