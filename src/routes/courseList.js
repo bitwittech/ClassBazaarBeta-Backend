@@ -8,7 +8,8 @@ var ObjectId = require('mongodb').ObjectId;
 const router = new Router();
 
 router.get('/api/courses/', async (req, res) => {
-  console.log('user', req.user);
+  // console.log('user', req.user);
+  let timeStart = Date.now();
   let st,
     en,
     searchQuery,
@@ -17,12 +18,12 @@ router.get('/api/courses/', async (req, res) => {
     provider,
     feeFilter,
     startDateFilter;
-  console.log(req.query);
+  // console.log(req.query);
   if (req.query.sort === undefined && req.query.range === undefined) {
     st = 0;
     en = 25;
   } else {
-    console.log('inside else');
+    // console.log('inside else');
     try {
       const range = JSON.parse(req.query.range);
       searchQuery = req.query['q'];
@@ -31,18 +32,14 @@ router.get('/api/courses/', async (req, res) => {
       startDateFilter = req.query.startDateFilter;
       provider = req.query.provider;
       subjectFilter = req.query.subjects;
-      // const sort = req.query.sort
-      //   .replace(/[/'"]+/g, '')
-      //   .substring(1, totalLength - 1)
-      //   .split(',');
       st = range[0];
       en = range[1];
     } catch (e) {
-      console.log(e);
+      // console.log(e);
     }
   }
 
-  console.log({ st }, { en }, { searchQuery });
+  // console.log({ st }, { en }, { searchQuery });
 
   const dataModel = db.table('data').where(qb => {
     if (searchQuery !== '' && filter === '') {
@@ -63,10 +60,9 @@ router.get('/api/courses/', async (req, res) => {
       });
     }
 
-    // SELECT * FROM data WHERE
     if (subjectFilter !== 'all') {
-      console.log('Inside the filter for subjects');
-      console.log({ subjectFilter });
+      // console.log('Inside the filter for subjects');
+      // console.log({ subjectFilter });
       qb.andWhere(subQB => {
         if (subjectFilter.split('::').length > 0) {
           subjectFilter.split('::').forEach((obj, index) => {
@@ -77,7 +73,7 @@ router.get('/api/courses/', async (req, res) => {
     }
 
     if (feeFilter === 'price:free') {
-      console.log('Query for free courses');
+      // console.log('Query for free courses');
       qb.whereNull('price');
     }
 
@@ -87,12 +83,12 @@ router.get('/api/courses/', async (req, res) => {
     }
 
     if (startDateFilter === 'start:flexible') {
-      console.log('Query for flexible start date');
+      // console.log('Query for flexible start date');
       qb.where('is_flexible', '=', true);
     }
 
     if (startDateFilter === 'start:lte30') {
-      console.log('Query for flexible start date with lte30');
+      // console.log('Query for flexible start date with lte30');
       var future = new Date();
       future.setDate(future.getDate() + 30);
       qb.where('start_date', '<=', future);
@@ -100,7 +96,7 @@ router.get('/api/courses/', async (req, res) => {
     }
 
     if (startDateFilter === 'start:gte30') {
-      console.log('Query for flexible start date with gte30');
+      // console.log('Query for flexible start date with gte30');
       var future = new Date();
       future.setDate(future.getDate() + 30);
       qb.where('start_date', '>=', future);
@@ -108,19 +104,30 @@ router.get('/api/courses/', async (req, res) => {
     }
 
     if (filter === 'certificates') {
-      console.log('Query for certificates');
+      // console.log('Query for certificates');
       qb.where('has_paid_certificates', '=', true);
     }
   });
 
-  const totalCount = await dataModel.clone().count();
-  const data = await dataModel
+  let point1 = Date.now();
+
+  const totalCount = dataModel.clone().count();
+
+  const data = dataModel
     .clone()
     .limit(en - st)
     .offset(st)
     .orderBy('ranking_points', 'desc');
-  console.log({ totalCount });
-  res.send({ data, total: totalCount[0]['count'] });
+  Promise.all([totalCount, data])
+    .then(result => {
+      let point2 = Date.now();
+      console.log(point2 - point1);
+      res.send({ data: result[1], total: 0 });
+    })
+    .catch(e => {
+      res.send({ data: [], total: 0 });
+    });
+  // res.send({ data, total: totalCount[0]['count'] });
 });
 
 router.get('/api/bookmarks/', async (req, res) => {

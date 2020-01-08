@@ -17,8 +17,8 @@ const command = process.argv[2];
 const config = {
   client: 'pg',
   connection: {
-    port: '5432',
-    host: '159.89.53.9',
+    port: '6432',
+    host: 'pgbouncer',
     user: 'postgres',
     password: 'docker',
     database: 'postgres',

@@ -12,20 +12,15 @@ import knex from 'knex';
 const db = knex({
   client: 'pg',
   connection: {
-    port: '5432',
-    host: '159.89.53.9',
+    port: '6432',
+    host: 'pgbouncer',
     user: 'postgres',
     password: 'docker',
     database: 'postgres',
   },
-
   pool: {
     min: 1,
-    max: 25,
-    idleTimeoutMillis: 86400 * 1000,
-    ping: function(conn, cb) {
-      conn.query('SELECT 1', cb);
-    },
+    max: 400,
   },
   debug: process.env.DATABASE_DEBUG === 'true',
 });
