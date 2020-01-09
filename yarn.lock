@@ -63,9 +63,10 @@
     lodash "^4.2.0"
     to-fast-properties "^2.0.0"
 
-"@fusionauth/node-client@^1.12.3":
+"@fusionauth/node-client@^1.13.0":
   version "1.13.0"
   resolved "https://registry.yarnpkg.com/@fusionauth/node-client/-/node-client-1.13.0.tgz#5fc0a283f4084bcd84fe7ced23d1a8bd17a2dac5"
+  integrity sha512-i5M95KlvLp5bY/OW9yqt/oa7LOWYUEPGG4ZzdzzH75inM0wSQiWxfnwOxVAUJ8czvNDWfyt6WVlQd+hEFo3CCA==
   dependencies:
     promise "^8.0.3"
 

@@ -3,7 +3,7 @@
   "version": "0.0.0",
   "private": true,
   "dependencies": {
-    "@fusionauth/node-client": "^1.12.3",
+    "@fusionauth/node-client": "^1.13.0",
     "bcryptjs": "^2.4.3",
     "bluebird": "^3.5.1",
     "body-parser": "^1.18.2",

@@ -6,6 +6,11 @@ const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
 const router = new Router();
+const { FusionAuthClient } = require('@fusionauth/node-client');
+const client = new FusionAuthClient(
+  'NiITD64khrkH7jn6PUNYCPdancc2gdiD8oZJDTsXFOA',
+  'https://auth.classbazaar.in',
+);
 
 router.get('/api/courses/', async (req, res) => {
   // console.log('user', req.user);
@@ -287,6 +292,107 @@ router.post('/api/contact', (req, res) => {
     })
     .catch(error => {
       res.status(422).send(error);
+    });
+});
+
+// Add review to user.
+router.post('/api/review', (req, res) => {
+  let token = req.body.token;
+  let review = req.body.review;
+  let courseID = req.body.courseID;
+  let provider = req.body.provider;
+  client
+    .retrieveUserUsingJWT(token)
+    .then(response => {
+      const user = response.successResponse.user;
+      db.table('review')
+        .insert({
+          user_id: user.id,
+          review: review,
+          course_id: courseID,
+          provider,
+        })
+        .returning('id')
+        .then(index => {
+          res.send({ status: 'Review Saved' });
+        })
+        .catch(console.error);
+    })
+    .catch(e => {
+      if (e.statuCode == 401) {
+        res.status(401);
+        res.send({ status: 'User not found. Could not reconcile JWT.' });
+      } else {
+        console.log(e);
+        res.status(500);
+        res.send({ status: 'Error' });
+      }
+    });
+});
+
+router.get('/api/review/user/', (req, res) => {
+  let token = req.body.token;
+  client
+    .retrieveUserUsingJWT(token)
+    .then(response => {
+      const user = response.successResponse.user;
+      db.table('review')
+        .where({
+          user_id: user.id,
+        })
+        .then(data => {
+          res.status(200);
+          res.send({ data });
+        })
+        .catch(e => {
+          res.status(500);
+          res.send({ status: 'Error' });
+        });
+    })
+    .catch(e => {
+      if (e.statuCode == 401) {
+        res.status(401);
+        res.send({ status: 'User not found. Could not reconcile JWT.' });
+      } else {
+        console.log(e);
+        res.status(500);
+        res.send({ status: 'Error' });
+      }
+    });
+});
+
+router.get('/api/review/course/', (req, res) => {
+  let token = req.body.token;
+  let review = req.body.review;
+  let courseID = req.body.courseID;
+  let provider = req.body.provider;
+  client
+    .retrieveUserUsingJWT(token)
+    .then(response => {
+      const user = response.successResponse.user;
+      db.table('review')
+        .where({
+          course_id: courseID,
+          provider: provider,
+        })
+        .then(data => {
+          res.status(200);
+          res.send({ data });
+        })
+        .catch(e => {
+          res.status(500);
+          res.send({ status: 'Error' });
+        });
+    })
+    .catch(e => {
+      if (e.statuCode == 401) {
+        res.status(401);
+        res.send({ status: 'User not found. Could not reconcile JWT.' });
+      } else {
+        console.log(e);
+        res.status(500);
+        res.send({ status: 'Error' });
+      }
     });
 });
 
