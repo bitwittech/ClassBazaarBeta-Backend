@@ -347,7 +347,7 @@ router.post('/api/review', (req, res) => {
     });
 });
 
-router.get('/api/review/user/', (req, res) => {
+router.post('/api/review/user/', (req, res) => {
   let token = req.body.token;
   client
     .retrieveUserUsingJWT(token)
@@ -378,7 +378,7 @@ router.get('/api/review/user/', (req, res) => {
     });
 });
 
-router.get('/api/review/course/', (req, res) => {
+router.post('/api/review/course/', (req, res) => {
   let token = req.body.token;
   let review = req.body.review;
   let courseID = req.body.courseID;
