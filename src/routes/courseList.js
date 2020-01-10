@@ -165,6 +165,23 @@ router.get('/api/course/', async (req, res) => {
   }
   console.log(provider, uuid);
 
+  let summaryData = {};
+  if (provider === 'SimpliLearn') {
+    summaryData = await db
+      .table('data')
+      .where({ provider, uuid: '"' + uuid + '"' })
+      .first()
+      .then(course => course);
+  } else {
+    summaryData = await db
+      .table('data')
+      .where({ provider, uuid })
+      .first()
+      .then(course => course);
+  }
+
+  console.log(summaryData);
+
   let mongoDBURL, dbName, collectionName, key;
   if (provider === 'edX') {
     mongoDBURL =
@@ -226,7 +243,7 @@ router.get('/api/course/', async (req, res) => {
     collection.findOne(query, (err, result) => {
       console.log({ err });
       console.log({ result });
-      res.send({ data: result });
+      res.send({ data: result, summaryData });
     });
   });
 });
