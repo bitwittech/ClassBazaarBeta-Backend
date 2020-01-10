@@ -383,33 +383,19 @@ router.post('/api/review/course/', (req, res) => {
   let review = req.body.review;
   let courseID = req.body.courseID;
   let provider = req.body.provider;
-  client
-    .retrieveUserUsingJWT(token)
-    .then(response => {
-      const user = response.successResponse.user;
-      db.table('review')
-        .where({
-          course_id: courseID,
-          provider: provider,
-        })
-        .then(data => {
-          res.status(200);
-          res.send({ data });
-        })
-        .catch(e => {
-          res.status(500);
-          res.send({ status: 'Error' });
-        });
+
+  db.table('review')
+    .where({
+      course_id: courseID,
+      provider: provider,
+    })
+    .then(data => {
+      res.status(200);
+      res.send({ data });
     })
     .catch(e => {
-      if (e.statuCode == 401) {
-        res.status(401);
-        res.send({ status: 'User not found. Could not reconcile JWT.' });
-      } else {
-        console.log(e);
-        res.status(500);
-        res.send({ status: 'Error' });
-      }
+      res.status(500);
+      res.send({ status: 'Error' });
     });
 });
 
