@@ -22,7 +22,7 @@ const send = ({ name, email, subject, message }) => {
   const msg = {
     from,
     to: 'mehtarajb@gmail.com',
-    cc: 'chaks.gautam@gmail.com',
+    cc: 'chaks.gautam@gmail.com, classbazaarco@gmail.com',
     subject: subject,
     text: textBody,
     replyTo: from,
