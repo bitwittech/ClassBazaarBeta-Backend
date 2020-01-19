@@ -120,14 +120,14 @@ router.get('/api/courses/', async (req, res) => {
 
   const data = dataModel
     .clone()
-    .limit(en - st)
+    .orderBy([{ column: 'ranking_points', order: 'desc' }, 'index'])
     .offset(st)
-    .orderBy('ranking_points', 'desc');
+    .limit(en - st);
   Promise.all([totalCount, data])
     .then(result => {
       let point2 = Date.now();
       console.log(point2 - point1);
-      res.send({ data: result[1], total: 0 });
+      res.send({ data: result[1], total: result[0] });
     })
     .catch(e => {
       res.send({ data: [], total: 0 });
