@@ -2,6 +2,9 @@ import { Router } from 'express';
 import db from '../db';
 import { filter } from 'rxjs/operators';
 import mailer from './../email';
+import { parse } from 'node-html-parser';
+import fetch from 'node-fetch';
+
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
@@ -298,6 +301,34 @@ router.get('/api/getSubjects', async (req, res) => {
 router.get('/api/getProviders', async (req, res) => {
   res.send({
     data: ['EDx', 'FutureLearn', 'SimpliLearn', 'Udemy'],
+  });
+});
+
+router.get('/api/refresh/futurelearn', async (req, res) => {
+  const summaryData = await db.table('data').where({ provider: 'FutureLearn' });
+
+  for (let course of summaryData) {
+    const resp = await fetch(course.url);
+    try {
+      const text = await resp.text();
+      const html = parse(text);
+      const price = html
+        .querySelectorAll('.m-comparison__sub-heading')[1]
+        .text.substring(1);
+      const query = db
+        .table('data')
+        .where('index', '=', course.index)
+        .update({ price });
+      console.log(query.toString());
+      await query.catch(err => {
+        console.error('Error while inserting price in database ', err);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  res.send({
+    status: 'Working on it',
   });
 });
 
