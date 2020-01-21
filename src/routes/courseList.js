@@ -349,17 +349,36 @@ router.post('/api/review', (req, res) => {
 
 router.post('/api/review/user/', (req, res) => {
   let token = req.body.token;
-  client
+  return client
     .retrieveUserUsingJWT(token)
     .then(response => {
       const user = response.successResponse.user;
+      console.log(user.id);
       db.table('review')
         .where({
           user_id: user.id,
         })
-        .then(data => {
-          res.status(200);
-          res.send({ data });
+        .then(async data => {
+          console.log(data);
+          return Promise.all(
+            data.map(async review => {
+              return db
+                .table('data')
+                .where({ provider: review.provider })
+                .andWhere({ uuid: review.course_id })
+                .first()
+                .then(course => {
+                  return {
+                    review: review,
+                    course: course,
+                  };
+                });
+            }),
+          ).then(results => {
+            console.log(results);
+            res.status(200);
+            res.send({ data: results });
+          });
         })
         .catch(e => {
           res.status(500);
