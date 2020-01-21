@@ -12,8 +12,8 @@ import knex from 'knex';
 const db = knex({
   client: 'pg',
   connection: {
-    port: '5432',
-    host: 'api.classbazaar.in',
+    port: '6432',
+    host: 'pgbouncer',
     user: 'postgres',
     password: 'docker',
     database: 'postgres',

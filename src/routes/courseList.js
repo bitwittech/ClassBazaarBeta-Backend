@@ -1,9 +1,9 @@
 import { Router } from 'express';
 import db from '../db';
+import fetch from 'node-fetch';
 import { filter } from 'rxjs/operators';
 import mailer from './../email';
 import { parse } from 'node-html-parser';
-import fetch from 'node-fetch';
 
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
