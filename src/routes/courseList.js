@@ -1,7 +1,10 @@
 import { Router } from 'express';
 import db from '../db';
+import fetch from 'node-fetch';
 import { filter } from 'rxjs/operators';
 import mailer from './../email';
+import { parse } from 'node-html-parser';
+
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
@@ -146,12 +149,13 @@ router.get('/api/courses/', async (req, res) => {
 
   const data = dataModel
     .clone()
-    .limit(en - st)
+    .orderBy([{ column: 'ranking_points', order: 'desc' }, 'index'])
     .offset(st)
-    .orderBy('ranking_points', 'desc');
-  console.log(data.toString());
+    .limit(en - st);
   Promise.all([totalCount, data])
     .then(result => {
+      let point2 = Date.now();
+      console.log(point2 - point1);
       res.send({ data: result[1], total: result[0] });
     })
     .catch(e => {
@@ -326,6 +330,34 @@ router.get('/api/getProviders', async (req, res) => {
   });
 });
 
+router.get('/api/refresh/futurelearn', async (req, res) => {
+  const summaryData = await db.table('data').where({ provider: 'FutureLearn' });
+
+  for (let course of summaryData) {
+    const resp = await fetch(course.url);
+    try {
+      const text = await resp.text();
+      const html = parse(text);
+      const price = html
+        .querySelectorAll('.m-comparison__sub-heading')[1]
+        .text.substring(1);
+      const query = db
+        .table('data')
+        .where('index', '=', course.index)
+        .update({ price });
+      console.log(query.toString());
+      await query.catch(err => {
+        console.error('Error while inserting price in database ', err);
+      });
+    } catch (err) {
+      console.error(err);
+    }
+  }
+  res.send({
+    status: 'Working on it',
+  });
+});
+
 router.post('/api/contact', (req, res) => {
   const { name, email, subject, message } = req.body;
   mailer({ name, email, subject, message })
@@ -374,17 +406,36 @@ router.post('/api/review', (req, res) => {
 
 router.post('/api/review/user/', (req, res) => {
   let token = req.body.token;
-  client
+  return client
     .retrieveUserUsingJWT(token)
     .then(response => {
       const user = response.successResponse.user;
+      console.log(user.id);
       db.table('review')
         .where({
           user_id: user.id,
         })
-        .then(data => {
-          res.status(200);
-          res.send({ data });
+        .then(async data => {
+          console.log(data);
+          return Promise.all(
+            data.map(async review => {
+              return db
+                .table('data')
+                .where({ provider: review.provider })
+                .andWhere({ uuid: review.course_id })
+                .first()
+                .then(course => {
+                  return {
+                    review: review,
+                    course: course,
+                  };
+                });
+            }),
+          ).then(results => {
+            console.log(results);
+            res.status(200);
+            res.send({ data: results });
+          });
         })
         .catch(e => {
           res.status(500);
