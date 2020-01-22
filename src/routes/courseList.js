@@ -154,8 +154,6 @@ router.get('/api/courses/', async (req, res) => {
     .limit(en - st);
   Promise.all([totalCount, data])
     .then(result => {
-      let point2 = Date.now();
-      console.log(point2 - point1);
       res.send({ data: result[1], total: result[0] });
     })
     .catch(e => {
