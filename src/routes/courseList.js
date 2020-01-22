@@ -14,6 +14,22 @@ const client = new FusionAuthClient(
   'NiITD64khrkH7jn6PUNYCPdancc2gdiD8oZJDTsXFOA',
   'https://auth.classbazaar.in',
 );
+const cols = [
+  'index',
+  'title',
+  'start_date',
+  'price',
+  'price_currency',
+  'subjects',
+  'provider',
+  'university',
+  'commitment',
+  'ranking_points',
+  'uuid',
+  'is_flexible',
+  'has_paid_certificates',
+  'url',
+];
 
 router.get('/api/courses/', async (req, res) => {
   // console.log('user', req.user);
@@ -26,15 +42,13 @@ router.get('/api/courses/', async (req, res) => {
     provider,
     feeFilter,
     startDateFilter;
-  // console.log(req.query);
   if (req.query.sort === undefined && req.query.range === undefined) {
     st = 0;
     en = 25;
   } else {
-    // console.log('inside else');
     try {
       const range = JSON.parse(req.query.range);
-      searchQuery = req.query['q'];
+      searchQuery = req.query['q'] || '';
       filter = req.query.filter;
       feeFilter = req.query.feeFilter;
       startDateFilter = req.query.startDateFilter;
@@ -47,22 +61,22 @@ router.get('/api/courses/', async (req, res) => {
     }
   }
 
-  // console.log({ st }, { en }, { searchQuery });
+  console.log(req.query);
 
   const dataModel = db.table('data').where(qb => {
     if (searchQuery !== '' && filter === '') {
-      qb.where('title', 'ilike', `%${searchQuery}%`).orWhere(
-        'university',
-        'ilike',
-        `%${searchQuery}%`,
-      );
+      qb.andWhere(subQB => {
+        subQB
+          .where('title', 'ilike', `%${searchQuery}%`)
+          .orWhere('university', 'ilike', `%${searchQuery}%`);
+      });
     }
 
     if (provider !== 'all') {
       qb.andWhere(subQB => {
         if (provider.split('::').length > 0) {
           provider.split('::').forEach((obj, index) => {
-            subQB.orWhere('provider', '=', obj);
+            subQB.andWhere('provider', '=', obj);
           });
         }
       });
@@ -116,10 +130,22 @@ router.get('/api/courses/', async (req, res) => {
       qb.where('has_paid_certificates', '=', true);
     }
   });
+  const totalCount = dataModel.clone();
+  totalCount.clearSelect();
+  totalCount.count();
 
-  let point1 = Date.now();
-
-  const totalCount = dataModel.clone().count();
+  if (searchQuery !== '' && filter === '') {
+    dataModel.select(
+      db.raw(
+        `(CASE WHEN university ilike '%${searchQuery}%' THEN 2 ELSE 1 END) As rnk`,
+      ),
+    );
+    for (let col of cols) {
+      dataModel.select(col);
+      dataModel.groupBy(col);
+    }
+    dataModel.orderBy('rnk', 'desc');
+  }
 
   const data = dataModel
     .clone()
@@ -133,9 +159,9 @@ router.get('/api/courses/', async (req, res) => {
       res.send({ data: result[1], total: result[0] });
     })
     .catch(e => {
+      console.error(e);
       res.send({ data: [], total: 0 });
     });
-  // res.send({ data, total: totalCount[0]['count'] });
 });
 
 router.get('/api/bookmarks/', async (req, res) => {
