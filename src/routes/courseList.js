@@ -247,7 +247,7 @@ router.get('/api/course/', async (req, res) => {
     uuid = new ObjectId(uuid);
   } else if (provider === 'Udemy') {
     mongoDBURL =
-      'mongodb://classbazaar:classbazaar-password@142.93.69.69:27017/classbazaar-test';
+      'mongodb://admin:9DOLi47GFlPymua5@SG-scraped-30169.servers.mongodirector.com:51151,SG-scraped-30170.servers.mongodirector.com:51151,SG-scraped-30171.servers.mongodirector.com:51151/admin?replicaSet=RS-scraped-0&ssl=true';
     dbName = 'classbazaar-test';
     collectionName = 'udemy';
     key = '_id';
