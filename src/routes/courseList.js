@@ -248,8 +248,8 @@ router.get('/api/course/', async (req, res) => {
       'mongodb://admin:Tgq2e2SoYmbhLadm@SG-scraped-30169.servers.mongodirector.com:51151,SG-scraped-30170.servers.mongodirector.com:51151,SG-scraped-30171.servers.mongodirector.com:51151/admin?replicaSet=RS-scraped-0&ssl=true';
     dbName = 'scrapejob';
     collectionName = 'udemy';
-    key = '_id';
-    uuid = new ObjectId(uuid);
+    key = 'title';
+    uuid = summaryData.title;
   } else if (provider === 'Swayam') {
     mongoDBURL =
       'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
