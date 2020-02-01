@@ -10,6 +10,9 @@ WORKDIR /usr/src/app
 # RUN set -ex; \
 #   apk add --no-cache ...
 
+COPY ./mongo_cert.crt /usr/local/share/ca-certificates/mongo_cert.crt
+RUN apk add --no-cache ca-certificates && update-ca-certificates
+
 # Install Node.js dependencies
 COPY package.json yarn.lock ./
 RUN set -ex; \
