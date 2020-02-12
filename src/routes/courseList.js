@@ -44,7 +44,13 @@ router.get('/api/courses/', async (req, res) => {
     startDateFilter;
   if (req.query.sort === undefined && req.query.range === undefined) {
     st = 0;
-    en = 25;
+    en = 10;
+    searchQuery = req.query['q'] || '';
+    filter = req.query.filter;
+    feeFilter = req.query.feeFilter;
+    startDateFilter = req.query.startDateFilter;
+    provider = req.query.provider;
+    subjectFilter = req.query.subjects;
   } else {
     try {
       const range = JSON.parse(req.query.range);
@@ -57,11 +63,9 @@ router.get('/api/courses/', async (req, res) => {
       st = range[0];
       en = range[1];
     } catch (e) {
-      // console.log(e);
+      console.log(e);
     }
   }
-
-  console.log(req.query);
 
   const dataModel = db.table('data').where(qb => {
     if (searchQuery !== '' && filter === '') {
@@ -73,10 +77,11 @@ router.get('/api/courses/', async (req, res) => {
     }
 
     if (provider !== 'all') {
+      console.log('Adding providers');
       qb.andWhere(subQB => {
         if (provider.split('::').length > 0) {
           provider.split('::').forEach((obj, index) => {
-            subQB.andWhere('provider', '=', obj);
+            subQB.orWhere('provider', '=', obj);
           });
         }
       });
@@ -146,6 +151,8 @@ router.get('/api/courses/', async (req, res) => {
     }
     dataModel.orderBy('rnk', 'desc');
   }
+
+  console.log(dataModel.toString());
 
   const data = dataModel
     .clone()
