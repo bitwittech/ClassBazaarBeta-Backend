@@ -269,7 +269,12 @@ router.get('/api/course/', async (req, res) => {
   }
   console.log({ key });
   MongoClient.connect(mongoDBURL, function(err, client) {
-    assert.equal(null, err);
+    try {
+      assert.equal(null, err);
+    } catch (e) {
+      res.send({ data: {}, summaryData });
+      return;
+    }
     const db = client.db(dbName);
     const collection = db.collection(collectionName);
     var query = {};
