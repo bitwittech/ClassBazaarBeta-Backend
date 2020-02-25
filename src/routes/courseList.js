@@ -72,7 +72,7 @@ router.get('/api/courses/', async (req, res) => {
       qb.andWhere(subQB => {
         subQB
           .where('title', 'ilike', `%${searchQuery}%`)
-          .orWhere('university', 'ilike', `%${searchQuery}%`);
+          .orWhereRaw(`university ~* '(\\m${searchQuery}\\M)'`);
       });
     }
 
@@ -142,7 +142,7 @@ router.get('/api/courses/', async (req, res) => {
   if (searchQuery !== '' && filter === '') {
     dataModel.select(
       db.raw(
-        `(CASE WHEN university ilike '%${searchQuery}%' THEN 2 ELSE 1 END) As rnk`,
+        `(CASE WHEN university ~* '(\\m${searchQuery}\\M)' THEN 2 ELSE 1 END) As rnk`,
       ),
     );
     for (let col of cols) {
