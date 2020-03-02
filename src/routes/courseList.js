@@ -385,7 +385,6 @@ router.post('/api/review', (req, res) => {
   let review = req.body.review;
   let courseID = req.body.courseID;
   let provider = req.body.provider;
-  let username = req.body.username;
 
   client
     .retrieveUserUsingJWT(token)
@@ -397,6 +396,7 @@ router.post('/api/review', (req, res) => {
           review: review,
           course_id: courseID,
           provider,
+          username: user.successResponse.username,
         })
         .returning('id')
         .then(index => {
