@@ -81,6 +81,10 @@ function getQueries(
         }
       });
     }
+
+    qb.andWhere(subQB => {
+      subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+    });
     if (feeFilter === 'price:free') {
       // console.log('Query for free courses');
       qb.whereNull('price');
