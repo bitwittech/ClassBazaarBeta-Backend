@@ -256,6 +256,9 @@ router.get('/api/v2/courses/', async (req, res) => {
         });
       }
       qb.andWhere('provider', '=', p);
+      qb.andWhere(subQB => {
+        subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+      });
 
       if (subjectFilter !== 'all') {
         // console.log('Inside the filter for subjects');
