@@ -390,15 +390,15 @@ router.post('/api/review', (req, res) => {
     .retrieveUserUsingJWT(token)
     .then(response => {
       const user = response.successResponse.user;
+      console.log("USER",user)
       db.table('review')
         .insert({
           user_id: user.id,
           review: review,
           course_id: courseID,
           provider,
-          username: user.successResponse.username,
+          username: user.username,
         })
-        .returning('id')
         .then(index => {
           res.send({ status: 'Review Saved' });
         })
@@ -467,8 +467,6 @@ router.post('/api/review/user/', (req, res) => {
 });
 
 router.post('/api/review/course/', (req, res) => {
-  let token = req.body.token;
-  let review = req.body.review;
   let courseID = req.body.courseID;
   let provider = req.body.provider;
 
