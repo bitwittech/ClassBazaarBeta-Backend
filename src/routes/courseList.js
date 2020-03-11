@@ -40,6 +40,7 @@ const cols = [
   'is_flexible',
   'has_paid_certificates',
   'url',
+  'instructors',
 ];
 
 function getQueries(
