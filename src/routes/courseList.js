@@ -487,4 +487,23 @@ router.post('/api/review/course/', (req, res) => {
     });
 });
 
+router.post('/api/stayupdated', (req, res) => {
+  const { name, email,id,added } = req.body;
+  console.log(name, email);
+  db.table('stayupdated')
+    .insert({
+      name,
+      email
+    })
+    .then(data => {
+      res.status(200).send({
+        status: 'Added successfully',
+      });
+    })
+    .catch(e => {
+      console.log("ERROR",e)
+      res.status(500).send({ status: 'Error' });
+    });
+});
+
 export default router;
