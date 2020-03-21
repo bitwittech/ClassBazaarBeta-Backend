@@ -21,6 +21,14 @@ module.exports.up = async db => {
     table.timestamps(false, true);
   });
 
+  await db.schema.createTable('stayupdated',table =>{
+    table.uuid('id').notNullable().defaultTo(db.raw('uuid_generate_v1mc()')).primary();
+    table.string('name',100).notNullable();
+    table.string('email',100).notNullable();
+    table.timestamps(false,true);
+    table.unique(['email'])
+  })
+
   // Users' email addresses
   await db.schema.createTable('emails', table => {
     table.uuid('id').notNullable().defaultTo(db.raw('uuid_generate_v1mc()')).primary();
@@ -78,6 +86,7 @@ module.exports.up = async db => {
 module.exports.down = async db => {
   await db.schema.dropTableIfExists('comment_points');
   await db.schema.dropTableIfExists('comments');
+  await db.schema.dropTableIfExists('stayupdated');
   await db.schema.dropTableIfExists('story_points');
   await db.schema.dropTableIfExists('stories');
   await db.schema.dropTableIfExists('logins');

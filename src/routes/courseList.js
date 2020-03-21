@@ -617,15 +617,15 @@ router.post('/api/review', (req, res) => {
     .retrieveUserUsingJWT(token)
     .then(response => {
       const user = response.successResponse.user;
+      console.log("USER",user)
       db.table('review')
         .insert({
           user_id: user.id,
           review: review,
           course_id: courseID,
           provider,
-          username: user.successResponse.username,
+          username: user.username,
         })
-        .returning('id')
         .then(index => {
           res.send({ status: 'Review Saved' });
         })
@@ -694,8 +694,6 @@ router.post('/api/review/user/', (req, res) => {
 });
 
 router.post('/api/review/course/', (req, res) => {
-  let token = req.body.token;
-  let review = req.body.review;
   let courseID = req.body.courseID;
   let provider = req.body.provider;
 
@@ -711,6 +709,25 @@ router.post('/api/review/course/', (req, res) => {
     .catch(e => {
       res.status(500);
       res.send({ status: 'Error' });
+    });
+});
+
+router.post('/api/stayupdated', (req, res) => {
+  const { name, email,id,added } = req.body;
+  console.log(name, email);
+  db.table('stayupdated')
+    .insert({
+      name,
+      email
+    })
+    .then(data => {
+      res.status(200).send({
+        status: 'Added successfully',
+      });
+    })
+    .catch(e => {
+      console.log("ERROR",e)
+      res.status(500).send({ status: 'Error' });
     });
 });
 

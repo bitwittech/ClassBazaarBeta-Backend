@@ -9,6 +9,11 @@ const fusionAuthAPIKey = '6DgFjRZOE94Wd9tIERk79YWJkWjCqvf5JUyKxIuxUgs';
 const applicationIdShikshaSaathi = '1ae074db-32f3-4714-a150-cc8a370eafd1';
 const router = new Router();
 
+const { FusionAuthClient } = require('@fusionauth/node-client');
+const client = new FusionAuthClient(
+  'NiITD64khrkH7jn6PUNYCPdancc2gdiD8oZJDTsXFOA',
+  'https://auth.classbazaar.in',
+);
 // Adds/Removes bookmark based on `action` param
 router.put('/api/user/bookmark', async (req, res) => {
   const action = req.body.action;
@@ -89,5 +94,29 @@ router.put('/api/user/review', async (req, res) => {});
 
 // Gets reviews for the user
 router.get('/api/user/reviews', async (req, res) => {});
+
+
+router.post('/api/webhook',async (req,res)=>{
+  console.log("WEBHOOK",req.body)
+
+  if(req.body.event.type === "user.registration.create"){
+    const {user} = req.body.event;
+    const requestData = {
+      userIds:[
+        req.body.event.user.id
+      ]
+    }
+    try {
+      const res = await client.sendEmail("a95455e8-62c8-44b4-8104-cfc14a6bc33e",requestData,()=>{
+        console.log("Mail sent to", user.id)
+      })
+      
+      return res.status(200).send('ok')
+    } catch (error) {
+      console.log("ERROR",error)
+    }
+  }
+  return res.status(200).send('ok')
+})
 
 export default router;
