@@ -14,6 +14,17 @@ const client = new FusionAuthClient(
   'NiITD64khrkH7jn6PUNYCPdancc2gdiD8oZJDTsXFOA',
   'https://auth.classbazaar.in',
 );
+
+const providersGlobal = [
+  'edX',
+  'FutureLearn',
+  'SimpliLearn',
+  'Udemy',
+  'Udacity',
+  'upGrad',
+  'Swayam',
+];
+
 const cols = [
   'index',
   'title',
@@ -29,7 +40,106 @@ const cols = [
   'is_flexible',
   'has_paid_certificates',
   'url',
+  'instructors',
 ];
+
+function getQueries(
+  searchQuery,
+  filter,
+  provider,
+  subjectFilter,
+  feeFilter,
+  startDateFilter,
+  st,
+  en,
+) {
+  const dataModel = db.table('data').where(qb => {
+    if (searchQuery !== '' && filter === '') {
+      qb.andWhere(subQB => {
+        subQB
+          .where('title', 'ilike', `%${searchQuery}%`)
+          .orWhereRaw(`university ~* '(\\m${searchQuery}\\M)'`);
+      });
+    }
+    if (provider !== 'all') {
+      console.log('Adding providers');
+      qb.andWhere(subQB => {
+        if (provider.split('::').length > 0) {
+          provider.split('::').forEach((obj, index) => {
+            subQB.orWhere('provider', '=', obj);
+          });
+        }
+      });
+    }
+    if (subjectFilter !== 'all') {
+      // console.log('Inside the filter for subjects');
+      // console.log({ subjectFilter });
+      qb.andWhere(subQB => {
+        if (subjectFilter.split('::').length > 0) {
+          subjectFilter.split('::').forEach((obj, index) => {
+            subQB.orWhereRaw(`'${obj}' = ANY (subjects)`);
+          });
+        }
+      });
+    }
+
+    qb.andWhere(subQB => {
+      subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+    });
+    if (feeFilter === 'price:free') {
+      // console.log('Query for free courses');
+      qb.whereNull('price');
+    }
+    if (feeFilter === 'price:paid') {
+      console.log('Query for free courses');
+      qb.whereNotNull('price');
+    }
+    if (startDateFilter === 'start:flexible') {
+      // console.log('Query for flexible start date');
+      qb.where('is_flexible', '=', true);
+    }
+    if (startDateFilter === 'start:lte30') {
+      // console.log('Query for flexible start date with lte30');
+      var future = new Date();
+      future.setDate(future.getDate() + 30);
+      qb.where('start_date', '<=', future);
+      // .orWhere('is_flexible', '=', true);
+    }
+    if (startDateFilter === 'start:gte30') {
+      // console.log('Query for flexible start date with gte30');
+      var future = new Date();
+      future.setDate(future.getDate() + 30);
+      qb.where('start_date', '>=', future);
+      // .orWhere('is_flexible', '=', true);
+    }
+    if (filter === 'certificates') {
+      // console.log('Query for certificates');
+      qb.where('has_paid_certificates', '=', true);
+    }
+  });
+  const totalCount = dataModel.clone();
+  totalCount.clearSelect();
+  totalCount.count();
+  if (searchQuery !== '' && filter === '') {
+    dataModel.select(
+      db.raw(
+        `(CASE WHEN university ~* '(\\m${searchQuery}\\M)' THEN 2 ELSE 1 END) As rnk`,
+      ),
+    );
+    for (let col of cols) {
+      dataModel.select(col);
+      dataModel.groupBy(col);
+    }
+    dataModel.orderBy('rnk', 'desc');
+  }
+  console.log(dataModel.toString());
+  const data = dataModel
+    .clone()
+    .orderBy([{ column: 'ranking_points', order: 'desc' }, 'index'])
+    .offset(st)
+    .limit(en - st);
+  return { totalCount, data };
+}
 
 router.get('/api/courses/', async (req, res) => {
   // console.log('user', req.user);
@@ -67,101 +177,218 @@ router.get('/api/courses/', async (req, res) => {
     }
   }
 
-  const dataModel = db.table('data').where(qb => {
-    if (searchQuery !== '' && filter === '') {
-      qb.andWhere(subQB => {
-        subQB
-          .where('title', 'ilike', `%${searchQuery}%`)
-          .orWhereRaw(`university ~* '(\\m${searchQuery}\\M)'`);
-      });
-    }
-
-    if (provider !== 'all') {
-      console.log('Adding providers');
-      qb.andWhere(subQB => {
-        if (provider.split('::').length > 0) {
-          provider.split('::').forEach((obj, index) => {
-            subQB.orWhere('provider', '=', obj);
-          });
-        }
-      });
-    }
-
-    if (subjectFilter !== 'all') {
-      // console.log('Inside the filter for subjects');
-      // console.log({ subjectFilter });
-      qb.andWhere(subQB => {
-        if (subjectFilter.split('::').length > 0) {
-          subjectFilter.split('::').forEach((obj, index) => {
-            subQB.orWhereRaw(`'${obj}' = ANY (subjects)`);
-          });
-        }
-      });
-    }
-
-    if (feeFilter === 'price:free') {
-      // console.log('Query for free courses');
-      qb.whereNull('price');
-    }
-
-    if (feeFilter === 'price:paid') {
-      console.log('Query for free courses');
-      qb.whereNotNull('price');
-    }
-
-    if (startDateFilter === 'start:flexible') {
-      // console.log('Query for flexible start date');
-      qb.where('is_flexible', '=', true);
-    }
-
-    if (startDateFilter === 'start:lte30') {
-      // console.log('Query for flexible start date with lte30');
-      var future = new Date();
-      future.setDate(future.getDate() + 30);
-      qb.where('start_date', '<=', future);
-      // .orWhere('is_flexible', '=', true);
-    }
-
-    if (startDateFilter === 'start:gte30') {
-      // console.log('Query for flexible start date with gte30');
-      var future = new Date();
-      future.setDate(future.getDate() + 30);
-      qb.where('start_date', '>=', future);
-      // .orWhere('is_flexible', '=', true);
-    }
-
-    if (filter === 'certificates') {
-      // console.log('Query for certificates');
-      qb.where('has_paid_certificates', '=', true);
-    }
-  });
-  const totalCount = dataModel.clone();
-  totalCount.clearSelect();
-  totalCount.count();
-
-  if (searchQuery !== '' && filter === '') {
-    dataModel.select(
-      db.raw(
-        `(CASE WHEN university ~* '(\\m${searchQuery}\\M)' THEN 2 ELSE 1 END) As rnk`,
-      ),
-    );
-    for (let col of cols) {
-      dataModel.select(col);
-      dataModel.groupBy(col);
-    }
-    dataModel.orderBy('rnk', 'desc');
-  }
-
-  console.log(dataModel.toString());
-
-  const data = dataModel
-    .clone()
-    .orderBy([{ column: 'ranking_points', order: 'desc' }, 'index'])
-    .offset(st)
-    .limit(en - st);
+  const { totalCount, data } = getQueries(
+    searchQuery,
+    filter,
+    provider,
+    subjectFilter,
+    feeFilter,
+    startDateFilter,
+    st,
+    en,
+  );
   Promise.all([totalCount, data])
     .then(result => {
       res.send({ data: result[1], total: result[0] });
+    })
+    .catch(e => {
+      console.error(e);
+      res.send({ data: [], total: 0 });
+    });
+});
+
+router.get('/api/v2/courses/', async (req, res) => {
+  // console.log('user', req.user);
+  let timeStart = Date.now();
+  let st,
+    en,
+    searchQuery,
+    filter,
+    subjectFilter,
+    provider,
+    feeFilter,
+    startDateFilter,
+    providerList,
+    providerOffsets;
+  if (req.query.sort === undefined && req.query.range === undefined) {
+    st = 0;
+    en = 10;
+    searchQuery = req.query['q'] || '';
+    filter = req.query.filter;
+    feeFilter = req.query.feeFilter;
+    startDateFilter = req.query.startDateFilter;
+    provider = req.query.provider;
+    subjectFilter = req.query.subjects;
+  } else {
+    try {
+      const range = JSON.parse(req.query.range);
+      searchQuery = req.query['q'] || '';
+      filter = req.query.filter;
+      feeFilter = req.query.feeFilter;
+      startDateFilter = req.query.startDateFilter;
+      provider = req.query.provider;
+      providerOffsets = req.query.providerOffset;
+      subjectFilter = req.query.subjects;
+      st = range[0];
+      en = range[1];
+
+      if (providerOffsets === undefined) {
+        providerOffsets = [0, 0, 0, 0, 0, 0, 0];
+      } else {
+        providerOffsets = providerOffsets.split('::').map(s => (s > 0 ? s : 0));
+      }
+
+      // Get providers
+      providerList = providersGlobal;
+    } catch (e) {
+      console.log(e);
+    }
+  }
+
+  const allQueries = providersGlobal.map((p, providerIndex) => {
+    if (provider !== 'all') {
+      if (provider.split('::').indexOf(p) < 0) {
+        return [];
+      }
+    }
+
+    const dataModel = db.table('data').where(qb => {
+      if (searchQuery !== '' && filter === '') {
+        qb.andWhere(subQB => {
+          subQB
+            .where('title', 'ilike', `%${searchQuery}%`)
+            .orWhereRaw(`university ~* '(\\m${searchQuery}\\M)'`);
+        });
+      }
+      qb.andWhere('provider', '=', p);
+      qb.andWhere(subQB => {
+        subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+      });
+
+      if (subjectFilter !== 'all') {
+        // console.log('Inside the filter for subjects');
+        // console.log({ subjectFilter });
+        qb.andWhere(subQB => {
+          if (subjectFilter.split('::').length > 0) {
+            subjectFilter.split('::').forEach((obj, index) => {
+              subQB.orWhereRaw(`'${obj}' = ANY (subjects)`);
+            });
+          }
+        });
+      }
+
+      if (feeFilter === 'price:free') {
+        // console.log('Query for free courses');
+        qb.whereNull('price');
+      }
+
+      if (feeFilter === 'price:paid') {
+        console.log('Query for free courses');
+        qb.whereNotNull('price');
+      }
+
+      if (startDateFilter === 'start:flexible') {
+        // console.log('Query for flexible start date');
+        qb.where('is_flexible', '=', true);
+      }
+
+      if (startDateFilter === 'start:lte30') {
+        // console.log('Query for flexible start date with lte30');
+        var future = new Date();
+        future.setDate(future.getDate() + 30);
+        qb.where('start_date', '<=', future);
+        // .orWhere('is_flexible', '=', true);
+      }
+
+      if (startDateFilter === 'start:gte30') {
+        // console.log('Query for flexible start date with gte30');
+        var future = new Date();
+        future.setDate(future.getDate() + 30);
+        qb.where('start_date', '>=', future);
+        // .orWhere('is_flexible', '=', true);
+      }
+
+      if (filter === 'certificates') {
+        // console.log('Query for certificates');
+        qb.where('has_paid_certificates', '=', true);
+      }
+    });
+    const totalCount = dataModel.clone();
+    totalCount.clearSelect();
+    totalCount.count();
+
+    if (searchQuery !== '' && filter === '') {
+      dataModel.select(
+        db.raw(
+          `(CASE WHEN university ~* '(\\m${searchQuery}\\M)' THEN 2 ELSE 1 END) As rnk`,
+        ),
+      );
+      for (let col of cols) {
+        dataModel.select(col);
+        dataModel.groupBy(col);
+      }
+      dataModel.orderBy('rnk', 'desc');
+    }
+
+    console.log(dataModel.toString());
+
+    return dataModel
+      .clone()
+      .orderBy([{ column: 'ranking_points', order: 'desc' }, 'index'])
+      .offset(providerOffsets[providerIndex])
+      .limit(10);
+  });
+
+  const { totalCount, data } = getQueries(
+    searchQuery,
+    filter,
+    provider,
+    subjectFilter,
+    feeFilter,
+    startDateFilter,
+    st,
+    en,
+  );
+  Promise.all(allQueries)
+    .then(result => {
+      let iteration = result.map(r => 0);
+      let finalData = [];
+      const total = result
+        .map(r => r.length)
+        .reduce((prev, current) => prev + current, 0);
+      const expectedResultsCount = total >= 10 ? 10 : total;
+
+      while (finalData.length < expectedResultsCount) {
+        result.map((r, index) => {
+          if (r[iteration[index]] !== undefined && finalData.length < 10) {
+            finalData.push(r[iteration[index]]);
+            iteration[index]++;
+          }
+        });
+      }
+      // updateing offsets
+      const finalIterations = iteration.map((i, idx) => {
+        if (provider !== 'all') {
+          if (provider.split('::').indexOf(providersGlobal[idx]) < 0) {
+            return -1;
+          }
+        } else {
+          return i + parseInt(providerOffsets[idx]);
+        }
+      });
+      Promise.all([totalCount])
+        .then(r => {
+          const total = parseInt(r[0][0].count);
+          res.send({
+            data: finalData,
+            total,
+            offset: finalIterations,
+          });
+        })
+        .catch(e => {
+          console.error(e);
+          res.send({ data: [], total: 0 });
+        });
     })
     .catch(e => {
       console.error(e);
