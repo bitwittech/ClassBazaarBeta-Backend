@@ -83,9 +83,9 @@ function getQueries(
       });
     }
 
-    qb.andWhere(subQB => {
-      subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
-    });
+    // qb.andWhere(subQB => {
+    //   subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+    // });
     if (feeFilter === 'price:free') {
       // console.log('Query for free courses');
       qb.whereNull('price');
@@ -261,9 +261,9 @@ router.get('/api/v2/courses/', async (req, res) => {
         });
       }
       qb.andWhere('provider', '=', p);
-      qb.andWhere(subQB => {
-        subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
-      });
+      // qb.andWhere(subQB => {
+      //   subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+      // });
 
       if (subjectFilter !== 'all') {
         // console.log('Inside the filter for subjects');
@@ -448,7 +448,7 @@ router.get('/api/course/', async (req, res) => {
     mongoDBURL =
       'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
     dbName = 'heroku_h05wbcsj';
-    collectionName = 'edx';
+    collectionName = 'edx_march_2020';
     key = 'uuid';
   } else if (provider === 'FutureLearn') {
     mongoDBURL =
@@ -488,7 +488,7 @@ router.get('/api/course/', async (req, res) => {
     mongoDBURL =
       'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
     dbName = 'heroku_glmmwlk5';
-    collectionName = 'swayam-new';
+    collectionName = 'swayam-march-2020';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else {
@@ -617,7 +617,7 @@ router.post('/api/review', (req, res) => {
     .retrieveUserUsingJWT(token)
     .then(response => {
       const user = response.successResponse.user;
-      console.log("USER",user)
+      console.log('USER', user);
       db.table('review')
         .insert({
           user_id: user.id,
@@ -713,12 +713,12 @@ router.post('/api/review/course/', (req, res) => {
 });
 
 router.post('/api/stayupdated', (req, res) => {
-  const { name, email,id,added } = req.body;
+  const { name, email, id, added } = req.body;
   console.log(name, email);
   db.table('stayupdated')
     .insert({
       name,
-      email
+      email,
     })
     .then(data => {
       res.status(200).send({
@@ -726,7 +726,7 @@ router.post('/api/stayupdated', (req, res) => {
       });
     })
     .catch(e => {
-      console.log("ERROR",e)
+      console.log('ERROR', e);
       res.status(500).send({ status: 'Error' });
     });
 });
