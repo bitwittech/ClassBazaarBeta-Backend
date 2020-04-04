@@ -1,11 +1,19 @@
+import {
+  mongoEdx,
+  mongoFl,
+  mongoSl,
+  mongoSwayam,
+  mongoUdacity,
+  mongoUdemy,
+  mongoUpG,
+} from '../mongoclient';
+
 import { Router } from 'express';
 import db from '../db';
 import fetch from 'node-fetch';
 import { filter } from 'rxjs/operators';
 import mailer from './../email';
 import { parse } from 'node-html-parser';
-import {mongoEdx,mongoSl,mongoSwayam,mongoUdacity,mongoUdemy,mongoUpG,mongoFl} from '../mongoclient'
-
 
 const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
@@ -421,54 +429,40 @@ router.get('/api/course/', async (req, res) => {
 
   let CLIENT, mongoDBURL, dbName, collectionName, key;
   if (provider === 'edX') {
-    // mongoDBURL =
-    //   'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
     CLIENT = mongoEdx;
     dbName = 'heroku_h05wbcsj';
     collectionName = 'edx_march_2020';
     key = 'uuid';
   } else if (provider === 'FutureLearn') {
-    // mongoDBURL =
-    //   'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
     CLIENT = mongoFl;
     dbName = 'heroku_h05wbcsj';
     collectionName = 'futureLearn';
     key = 'uuid';
   } else if (provider === 'SimpliLearn') {
-    // mongoDBURL =
-    //   'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
     CLIENT = mongoSl;
     dbName = 'heroku_glmmwlk5';
     collectionName = 'simplilearn';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'upGrad') {
-    // mongoDBURL =
-    //   'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj';
     CLIENT = mongoUpG;
     dbName = 'heroku_h05wbcsj';
     collectionName = 'upgrad';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'Udacity') {
-    // mongoDBURL =
-    //   'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
     CLIENT = mongoUdacity;
     dbName = 'heroku_glmmwlk5';
     collectionName = 'udacity';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'Udemy') {
-    // mongoDBURL =
-    //   'mongodb://admin:Tgq2e2SoYmbhLadm@SG-scraped-30169.servers.mongodirector.com:51151,SG-scraped-30170.servers.mongodirector.com:51151,SG-scraped-30171.servers.mongodirector.com:51151/admin?replicaSet=RS-scraped-0&ssl=true';
-   CLIENT=mongoUdemy;
+    CLIENT = mongoUdemy;
     dbName = 'scrapejob';
     collectionName = 'udemy';
     key = 'title';
     uuid = summaryData.title;
   } else if (provider === 'Swayam') {
-    // mongoDBURL =
-    //   'mongodb://heroku_glmmwlk5:bo7m9i29h7o2d0p34dde1j2rgb@ds255107.mlab.com:55107/heroku_glmmwlk5';
     CLIENT = mongoSwayam;
     dbName = 'heroku_glmmwlk5';
     collectionName = 'swayam-march-2020';
@@ -482,14 +476,14 @@ router.get('/api/course/', async (req, res) => {
   var query = {};
   query[key] = uuid;
   try {
-    const RESD = await CLIENT.db(dbName).collection(collectionName).findOne(query);
+    const RESD = await CLIENT.db(dbName)
+      .collection(collectionName)
+      .findOne(query);
     res.send({ data: RESD, summaryData });
-  } catch (error){
-    res.send({data:[],summaryData});
+  } catch (error) {
+    res.send({ data: [], summaryData });
   }
-  res.send({summaryData});
-
-  
+  res.send({ summaryData });
 
   // console.log({ key });
   // MongoClient.connect(mongoDBURL, function(err, client) {
