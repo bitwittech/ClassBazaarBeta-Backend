@@ -1,0 +1,17 @@
+version: '3'
+
+services:
+  # Data API and authentication/authorization
+  pgbouncer:
+    image: brainsam/pgbouncer
+    environment:
+      DB_HOST: 139.59.46.189
+      DB_USER: postgres
+      DB_PASSWORD: sERSlks736SFe
+      DB_port: 5432
+      DEFAULT_POOL_SIZE: 800
+      MAX_CLIENT_CONN: 5000
+      MAX_DB_CONNECTIONS: 30
+      MAX_USER_CONNECTIONS: 380
+    ports:
+      - '0.0.0.0:6432:6432'
