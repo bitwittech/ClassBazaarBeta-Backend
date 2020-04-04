@@ -98,12 +98,12 @@ router.get('/api/user/reviews', async (req, res) => {});
 
 router.post('/api/webhook',async (req,res)=>{
   console.log("WEBHOOK",req.body)
-
+  console.log("EVENT", req.body.event.type)
   if(req.body.event.type === "user.registration.create"){
     const {user} = req.body.event;
     const requestData = {
       userIds:[
-        req.body.event.user.id
+        "adebdbaf-980d-47a3-8828-ea66318abece"
       ]
     }
     try {
