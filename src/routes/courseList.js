@@ -63,9 +63,9 @@ function getQueries(
   st,
   en,
 ) {
-  const dataModel = db.table('data').where(qb => {
+  const dataModel = db.table('data').where((qb) => {
     if (searchQuery !== '' && filter === '') {
-      qb.andWhere(subQB => {
+      qb.andWhere((subQB) => {
         subQB
           .where('title', 'ilike', `%${searchQuery}%`)
           .orWhereRaw(`university ~* '(\\m${searchQuery}\\M)'`);
@@ -73,7 +73,7 @@ function getQueries(
     }
     if (provider !== 'all') {
       console.log('Adding providers');
-      qb.andWhere(subQB => {
+      qb.andWhere((subQB) => {
         if (provider.split('::').length > 0) {
           provider.split('::').forEach((obj, index) => {
             subQB.orWhere('provider', '=', obj);
@@ -84,7 +84,7 @@ function getQueries(
     if (subjectFilter !== 'all') {
       // console.log('Inside the filter for subjects');
       // console.log({ subjectFilter });
-      qb.andWhere(subQB => {
+      qb.andWhere((subQB) => {
         if (subjectFilter.split('::').length > 0) {
           subjectFilter.split('::').forEach((obj, index) => {
             subQB.orWhereRaw(`'${obj}' = ANY (subjects)`);
@@ -198,10 +198,10 @@ router.get('/api/courses/', async (req, res) => {
     en,
   );
   Promise.all([totalCount, data])
-    .then(result => {
+    .then((result) => {
       res.send({ data: result[1], total: result[0] });
     })
-    .catch(e => {
+    .catch((e) => {
       console.error(e);
       res.send({ data: [], total: 0 });
     });
@@ -231,9 +231,9 @@ router.get('/api/v2/courses/', async (req, res) => {
         }
       }
 
-      const dataModel = db.table('data').where(qb => {
+      const dataModel = db.table('data').where((qb) => {
         if (searchQuery !== '' && filter === '') {
-          qb.andWhere(subQB => {
+          qb.andWhere((subQB) => {
             subQB
               .where('title', 'ilike', `%${searchQuery}%`)
               .orWhereRaw(`university ~* '(\\m${searchQuery}\\M)'`);
@@ -247,7 +247,7 @@ router.get('/api/v2/courses/', async (req, res) => {
         if (subjectFilter !== 'all') {
           // console.log('Inside the filter for subjects');
           // console.log({ subjectFilter });
-          qb.andWhere(subQB => {
+          qb.andWhere((subQB) => {
             if (subjectFilter.split('::').length > 0) {
               subjectFilter.split('::').forEach((obj, index) => {
                 subQB.orWhereRaw(`'${obj}' = ANY (subjects)`);
@@ -329,12 +329,12 @@ router.get('/api/v2/courses/', async (req, res) => {
       en,
     );
     Promise.all(allQueries)
-      .then(result => {
+      .then((result) => {
         console.log('Here 1');
-        let iteration = result.map(r => 0);
+        let iteration = result.map((r) => 0);
         let finalData = [];
         const total = result
-          .map(r => r.length)
+          .map((r) => r.length)
           .reduce((prev, current) => prev + current, 0);
         const expectedResultsCount = total >= 10 ? 10 : total;
 
@@ -357,7 +357,7 @@ router.get('/api/v2/courses/', async (req, res) => {
           }
         });
         Promise.all([totalCount])
-          .then(r => {
+          .then((r) => {
             console.log(r[0][0]);
             const total = parseInt(r[0][0].count);
             res.send({
@@ -366,12 +366,12 @@ router.get('/api/v2/courses/', async (req, res) => {
               offset: finalIterations,
             });
           })
-          .catch(e => {
+          .catch((e) => {
             console.error(e);
             res.send({ data: [], total: 0 });
           });
       })
-      .catch(e => {
+      .catch((e) => {
         console.error(e);
         res.send({ data: [], total: 0 });
       });
@@ -382,7 +382,7 @@ router.get('/api/v2/courses/', async (req, res) => {
 
 router.get('/api/bookmarks/', async (req, res) => {
   let bookmarks = JSON.parse(req.query.data);
-  const dataModel = db.table('data').where(qb => {
+  const dataModel = db.table('data').where((qb) => {
     bookmarks.forEach((obj, index) => {
       qb.orWhere({ uuid: obj.id, provider: obj.provider });
     });
@@ -403,7 +403,7 @@ router.get('/api/course/', async (req, res) => {
       .table('data')
       .where({ index: courseID })
       .first()
-      .then(course => {
+      .then((course) => {
         console.log(course);
         res.send({ data: course });
       });
@@ -416,13 +416,13 @@ router.get('/api/course/', async (req, res) => {
       .table('data')
       .where({ provider, uuid: '"' + uuid + '"' })
       .first()
-      .then(course => course);
+      .then((course) => course);
   } else {
     summaryData = await db
       .table('data')
       .where({ provider, uuid })
       .first()
-      .then(course => course);
+      .then((course) => course);
   }
 
   console.log(summaryData);
@@ -431,7 +431,7 @@ router.get('/api/course/', async (req, res) => {
   if (provider === 'edX') {
     CLIENT = mongoEdx;
     dbName = 'heroku_h05wbcsj';
-    collectionName = 'edx_march_2020';
+    collectionName = 'edx_apr_9_2020';
     key = 'uuid';
   } else if (provider === 'FutureLearn') {
     CLIENT = mongoFl;
@@ -574,7 +574,7 @@ router.get('/api/refresh/futurelearn', async (req, res) => {
         .where('index', '=', course.index)
         .update({ price });
       console.log(query.toString());
-      await query.catch(err => {
+      await query.catch((err) => {
         console.error('Error while inserting price in database ', err);
       });
     } catch (err) {
@@ -592,7 +592,7 @@ router.post('/api/contact', (req, res) => {
     .then(() => {
       res.send('success');
     })
-    .catch(error => {
+    .catch((error) => {
       res.status(422).send(error);
     });
 });
@@ -606,7 +606,7 @@ router.post('/api/review', (req, res) => {
 
   client
     .retrieveUserUsingJWT(token)
-    .then(response => {
+    .then((response) => {
       const user = response.successResponse.user;
       console.log('USER', user);
       db.table('review')
@@ -617,12 +617,12 @@ router.post('/api/review', (req, res) => {
           provider,
           username: user.username,
         })
-        .then(index => {
+        .then((index) => {
           res.send({ status: 'Review Saved' });
         })
         .catch(console.error);
     })
-    .catch(e => {
+    .catch((e) => {
       if (e.statuCode == 401) {
         res.status(401);
         res.send({ status: 'User not found. Could not reconcile JWT.' });
@@ -638,41 +638,41 @@ router.post('/api/review/user/', (req, res) => {
   let token = req.body.token;
   return client
     .retrieveUserUsingJWT(token)
-    .then(response => {
+    .then((response) => {
       const user = response.successResponse.user;
       console.log(user.id);
       db.table('review')
         .where({
           user_id: user.id,
         })
-        .then(async data => {
+        .then(async (data) => {
           console.log(data);
           return Promise.all(
-            data.map(async review => {
+            data.map(async (review) => {
               return db
                 .table('data')
                 .where({ provider: review.provider })
                 .andWhere({ uuid: review.course_id })
                 .first()
-                .then(course => {
+                .then((course) => {
                   return {
                     review: review,
                     course: course,
                   };
                 });
             }),
-          ).then(results => {
+          ).then((results) => {
             console.log(results);
             res.status(200);
             res.send({ data: results });
           });
         })
-        .catch(e => {
+        .catch((e) => {
           res.status(500);
           res.send({ status: 'Error' });
         });
     })
-    .catch(e => {
+    .catch((e) => {
       if (e.statuCode == 401) {
         res.status(401);
         res.send({ status: 'User not found. Could not reconcile JWT.' });
@@ -693,11 +693,11 @@ router.post('/api/review/course/', (req, res) => {
       course_id: courseID,
       provider: provider,
     })
-    .then(data => {
+    .then((data) => {
       res.status(200);
       res.send({ data });
     })
-    .catch(e => {
+    .catch((e) => {
       res.status(500);
       res.send({ status: 'Error' });
     });
@@ -711,12 +711,12 @@ router.post('/api/stayupdated', (req, res) => {
       name,
       email,
     })
-    .then(data => {
+    .then((data) => {
       res.status(200).send({
         status: 'Added successfully',
       });
     })
-    .catch(e => {
+    .catch((e) => {
       console.log('ERROR', e);
       res.status(500).send({ status: 'Error' });
     });
@@ -748,7 +748,7 @@ function parseQueryString(req) {
     if (providerOffsets === undefined) {
       providerOffsets = [0, 0, 0, 0, 0, 0, 0];
     } else {
-      providerOffsets = providerOffsets.split('::').map(s => (s > 0 ? s : 0));
+      providerOffsets = providerOffsets.split('::').map((s) => (s > 0 ? s : 0));
     }
     // Get providers
     providerList = providersGlobal;
@@ -765,7 +765,9 @@ function parseQueryString(req) {
       if (providerOffsets === undefined) {
         providerOffsets = [0, 0, 0, 0, 0, 0, 0];
       } else {
-        providerOffsets = providerOffsets.split('::').map(s => (s > 0 ? s : 0));
+        providerOffsets = providerOffsets
+          .split('::')
+          .map((s) => (s > 0 ? s : 0));
       }
       // Get providers
       providerList = providersGlobal;
