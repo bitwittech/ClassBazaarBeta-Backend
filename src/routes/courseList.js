@@ -346,15 +346,13 @@ router.get('/api/v2/courses/', async (req, res) => {
             }
           });
         }
-        // updateing offsets
+        // updating offsets
         const finalIterations = iteration.map((i, idx) => {
           if (provider !== 'all') {
-            if (provider.split('::').indexOf(providersGlobal[idx]) < 0) {
-              return -1;
-            }
-          } else {
-            return i + parseInt(providerOffsets[idx]);
-          }
+            if (provider.split('::').indexOf(providersGlobal[idx]) < 0)
+              return 0;
+            else return i + parseInt(providerOffsets[idx]);
+          } else return i + parseInt(providerOffsets[idx]);
         });
         Promise.all([totalCount])
           .then((r) => {
