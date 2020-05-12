@@ -1,4 +1,5 @@
 import {
+  mongoCoursera,
   mongoEdx,
   mongoFl,
   mongoSl,
@@ -26,6 +27,7 @@ const client = new FusionAuthClient(
 );
 
 const providersGlobal = [
+  'Coursera',
   'edX',
   'FutureLearn',
   'SimpliLearn',
@@ -426,7 +428,13 @@ router.get('/api/course/', async (req, res) => {
   console.log(summaryData);
 
   let CLIENT, mongoDBURL, dbName, collectionName, key;
-  if (provider === 'edX') {
+  if (provider === 'Coursera') {
+    CLIENT = mongoCoursera;
+    dbName = 'heroku_b5kg98fc';
+    collectionName = 'coursera';
+    key = '_id';
+    uuid = new ObjectId(uuid);
+  } else if (provider === 'edX') {
     CLIENT = mongoEdx;
     dbName = 'heroku_h05wbcsj';
     collectionName = 'edx_apr_9_2020';
@@ -482,25 +490,6 @@ router.get('/api/course/', async (req, res) => {
     res.send({ data: [], summaryData });
   }
   res.send({ summaryData });
-
-  // console.log({ key });
-  // MongoClient.connect(mongoDBURL, function(err, client) {
-  //   try {
-  //     assert.equal(null, err);
-  //   } catch (e) {
-  //     res.send({ data: {}, summaryData });
-  //     return;
-  //   }
-  //   const db = client.db(dbName);
-  //   const collection = db.collection(collectionName);
-  //   var query = {};
-  //   query[key] = uuid;
-  //   collection.findOne(query, (err, result) => {
-  //     console.log({ err });
-  //     console.log({ result });
-  //     res.send({ data: result, summaryData });
-  //   });
-  // });
 });
 
 router.get('/api/getSubjects', async (req, res) => {
@@ -744,7 +733,7 @@ function parseQueryString(req) {
     providerOffsets = req.query.providerOffset;
 
     if (providerOffsets === undefined) {
-      providerOffsets = [0, 0, 0, 0, 0, 0, 0];
+      providerOffsets = [0, 0, 0, 0, 0, 0, 0, 0];
     } else {
       providerOffsets = providerOffsets.split('::').map((s) => (s > 0 ? s : 0));
     }
@@ -761,7 +750,7 @@ function parseQueryString(req) {
       st = range[0];
       en = range[1];
       if (providerOffsets === undefined) {
-        providerOffsets = [0, 0, 0, 0, 0, 0, 0];
+        providerOffsets = [0, 0, 0, 0, 0, 0, 0, 0];
       } else {
         providerOffsets = providerOffsets
           .split('::')
