@@ -435,13 +435,14 @@ router.get('/api/course/', async (req, res) => {
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'edX') {
+    console.log('EDX found');
     CLIENT = mongoEdx;
-    dbName = 'heroku_h05wbcsj';
-    collectionName = 'edx_apr_9_2020';
+    dbName = 'classbazaar';
+    collectionName = 'edx';
     key = 'uuid';
   } else if (provider === 'FutureLearn') {
     CLIENT = mongoFl;
-    dbName = 'heroku_h05wbcsj';
+    dbName = 'classbazaar';
     collectionName = 'futureLearn';
     key = 'uuid';
   } else if (provider === 'SimpliLearn') {
@@ -464,7 +465,7 @@ router.get('/api/course/', async (req, res) => {
     uuid = new ObjectId(uuid);
   } else if (provider === 'Udemy') {
     CLIENT = mongoUdemy;
-    dbName = 'scrapejob';
+    dbName = 'classbazaar';
     collectionName = 'udemy';
     key = 'title';
     uuid = summaryData.title;
@@ -481,12 +482,14 @@ router.get('/api/course/', async (req, res) => {
   console.log({ key });
   var query = {};
   query[key] = uuid;
+  console.log({ CLIENT });
   try {
     const RESD = await CLIENT.db(dbName)
       .collection(collectionName)
       .findOne(query);
     res.send({ data: RESD, summaryData });
   } catch (error) {
+    console.log(error);
     res.send({ data: [], summaryData });
   }
   res.send({ summaryData });

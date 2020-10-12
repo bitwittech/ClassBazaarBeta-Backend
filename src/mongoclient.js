@@ -15,6 +15,8 @@ const connectCommon = async () => {
       { useNewUrlParser: true },
     );
     mongoUdemy = mgClient;
+    mongoEdx = mgClient;
+    mongoFl = mgClient;
   } catch (error) {
     console.log('Udemy Mongo Error', error);
   }
