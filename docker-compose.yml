@@ -3,18 +3,12 @@ version: '3'
 services:
   # Data API and authentication/authorization
   api:
-    logging:
-      driver: gcplogs
     image: api
     build:
       context: ./
       args:
         NODE_ENV: development
     hostname: api
-    depends_on:
-      - db
-      - redis
-      - pgbouncer
     environment:
       - CORS_ORIGIN=http://localhost:3000,http://localhost:3001
       - DATABASE_URL=postgres://postgres@db:5432/dev
@@ -28,9 +22,9 @@ services:
       - TWITTER_KEY=xxxxx
       - TWITTER_SECRET=xxxxx
     ports:
-      - '8080:8080'
-      - '127.0.0.1:9229:9229' # V8 inspector for tools/run.js
-      - '127.0.0.1:9230:9230' # V8 inspector for src/server.js
+      - '8082:8080'
+      # - '127.0.0.1:9229:9229' # V8 inspector for tools/run.js
+      # - '127.0.0.1:9230:9230' # V8 inspector for src/server.js
     volumes:
       - yarn:/home/node/.cache/yarn
       - ./build:/usr/src/app/build
@@ -46,55 +40,6 @@ services:
       - ./package.json:/usr/src/app/package.json
       - ./yarn.lock:/usr/src/app/yarn.lock
     command: node tools/run.js # or, `node --inspect=0.0.0.0:9229 tools/run.js`
-
-  # SQL and document data store
-  db:
-    logging:
-      driver: gcplogs
-    image: postgres
-    command:
-      [
-        '-c',
-        'shared_buffers=1024MB',
-        '-c',
-        'max_connections=400',
-        '-c',
-        'effective_cache_size=1024MB',
-      ]
-    environment:
-      - POSTGRES_USER=postgres
-      - POSTGRES_PASSWORD=docker
-      - POSTGRES_DB=postgres
-    volumes:
-      - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
-    ports:
-      - '0.0.0.0:5432:5432'
-
-  pgbouncer:
-    logging:
-      driver: gcplogs
-    image: brainsam/pgbouncer
-    environment:
-      DB_HOST: db
-      DB_USER: postgres
-      DB_PASSWORD: docker
-      DB_port: 5432
-      DEFAULT_POOL_SIZE: 800
-      MAX_CLIENT_CONN: 5000
-      MAX_DB_CONNECTIONS: 30
-      MAX_USER_CONNECTIONS: 380
-    ports:
-      - '0.0.0.0:6432:6432'
-
-  # Distributed in-memory cache
-  redis:
-    logging:
-      driver: gcplogs
-    image: redis:4.0.6-alpine
-    read_only: true
-    volumes:
-      - redis:/data
-    user: redis
 
 volumes:
   redis:

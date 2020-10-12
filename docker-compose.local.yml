@@ -26,7 +26,7 @@ services:
       - TWITTER_KEY=xxxxx
       - TWITTER_SECRET=xxxxx
     ports:
-      - '0.0.0.0:8080:8080'
+      - '8082:8080'
       # - '127.0.0.1:9229:9229' # V8 inspector for tools/run.js
       # - '127.0.0.1:9230:9230' # V8 inspector for src/server.js
     volumes:
@@ -64,7 +64,7 @@ services:
     volumes:
       - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
     ports:
-      - '127.0.0.1:5432:5432'
+      - '5432:5432'
 
   pgbouncer:
     image: brainsam/pgbouncer
@@ -78,7 +78,7 @@ services:
       MAX_DB_CONNECTIONS: 30
       MAX_USER_CONNECTIONS: 380
     ports:
-      - '127.0.0.1:6432:6432'
+      - '6432:6432'
 
   # Distributed in-memory cache
   redis:
@@ -99,7 +99,7 @@ services:
     volumes:
       - 'mongodb_master_data:/bitnami'
     ports:
-      - '127.0.0.1:27017:27017'
+      - '27017:27017'
 
   mdb-sec:
     image: 'bitnami/mongodb:latest'

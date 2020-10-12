@@ -12,10 +12,10 @@ import knex from 'knex';
 const db = knex({
   client: 'pg',
   connection: {
-    port: '6432',
-    host: 'pgbouncer',
-    user: 'postgres',
-    password: 'docker',
+    port: '32768',
+    host: '206.189.138.80',
+    user: 'classbazaar',
+    password: 'CBPassword2019!',
     database: 'postgres',
   },
   pool: {

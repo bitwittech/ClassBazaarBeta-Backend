@@ -8,37 +8,15 @@ let mongoUdacity;
 let mongoSwayam;
 let mongoSl;
 let mongoCoursera;
-const connectUdemy = async () => {
+const connectCommon = async () => {
   try {
     const mgClient = await MongoClient.connect(
-      'mongodb://admin:Tgq2e2SoYmbhLadm@SG-scraped-30169.servers.mongodirector.com:51151,SG-scraped-30170.servers.mongodirector.com:51151,SG-scraped-30171.servers.mongodirector.com:51151/admin?replicaSet=RS-scraped-0&ssl=true',
+      'mongodb://classbazaar:CBPassword2019!@159.89.167.238:32770/',
       { useNewUrlParser: true },
     );
     mongoUdemy = mgClient;
   } catch (error) {
     console.log('Udemy Mongo Error', error);
-  }
-};
-const connectEdx = async () => {
-  try {
-    const mgClient = await MongoClient.connect(
-      'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj',
-      { useNewUrlParser: true },
-    );
-    mongoEdx = mgClient;
-  } catch (error) {
-    console.log('Edx Mongo Error', error);
-  }
-};
-const connectFL = async () => {
-  try {
-    const mgClient = await MongoClient.connect(
-      'mongodb://heroku_h05wbcsj:olo89lerbvime4a39a8stuolju@ds253567.mlab.com:53567/heroku_h05wbcsj',
-      { useNewUrlParser: true },
-    );
-    mongoFl = mgClient;
-  } catch (error) {
-    console.log('FL MONGO ERROR', error);
   }
 };
 
@@ -103,10 +81,10 @@ const connectCoursera = async () => {
 const mainConnect = async () => {
   try {
     await connectCoursera();
-    await connectEdx();
-    await connectFL();
+    await connectCommon();
+    await connectCommon();
     await connectSL();
-    await connectUdemy();
+    await connectCommon();
     await connectUpG();
     await connectSwayam();
     await connectUdacity();

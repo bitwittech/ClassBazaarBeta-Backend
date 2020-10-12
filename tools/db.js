@@ -17,10 +17,10 @@ const command = process.argv[2];
 const config = {
   client: 'pg',
   connection: {
-    port: '5432',
-    host: 'api.classbazaar.in',
-    user: 'postgres',
-    password: 'docker',
+    port: '32768',
+    host: '206.189.138.80',
+    user: 'classbazaar',
+    password: 'CBPassword2019!',
     database: 'postgres',
   },
   pool: { min: 0, max: 25 },
@@ -31,10 +31,7 @@ const config = {
 };
 
 // The template for database migration files (see templates/*.js)
-const version = new Date()
-  .toISOString()
-  .substr(0, 16)
-  .replace(/\D/g, '');
+const version = new Date().toISOString().substr(0, 16).replace(/\D/g, '');
 const template = `module.exports.up = async (db) => {\n  \n};\n
 module.exports.down = async (db) => {\n  \n};\n
 module.exports.configuration = { transaction: true };\n`;

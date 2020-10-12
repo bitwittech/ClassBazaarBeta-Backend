@@ -8,9 +8,6 @@
 /* @flow */
 /* eslint-disable no-param-reassign, no-underscore-dangle, max-len */
 
-import { Strategy as FacebookStrategy } from 'passport-facebook';
-import { Strategy as GoogleStrategy } from 'passport-google-oauth20';
-import { Strategy as TwitterStrategy } from 'passport-twitter';
 import db from './db';
 import passport from 'passport';
 var LocalStrategy = require('passport-local').Strategy;
@@ -34,10 +31,7 @@ async function login(req, provider, profile, tokens) {
   let user;
 
   if (req.user) {
-    user = await db
-      .table('users')
-      .where({ id: req.user.id })
-      .first();
+    user = await db.table('users').where({ id: req.user.id }).first();
   }
 
   if (!user) {
@@ -77,7 +71,7 @@ async function login(req, provider, profile, tokens) {
 
     if (profile.emails && profile.emails.length) {
       await db.table('emails').insert(
-        profile.emails.map(x => ({
+        profile.emails.map((x) => ({
           user_id: user && user.id,
           email: x.value,
           verified: x.verified || false,
@@ -119,99 +113,6 @@ async function login(req, provider, profile, tokens) {
   };
 }
 
-// https://github.com/jaredhanson/passport-google-oauth2
-passport.use(
-  new GoogleStrategy(
-    {
-      clientID: process.env.GOOGLE_ID,
-      clientSecret: process.env.GOOGLE_SECRET,
-      callbackURL: '/login/google/return',
-      passReqToCallback: true,
-    },
-    async (req, accessToken, refreshToken, profile, done) => {
-      try {
-        const user = await login(req, 'google', profile, {
-          accessToken,
-          refreshToken,
-        });
-        done(null, user);
-      } catch (err) {
-        done(err);
-      }
-    },
-  ),
-);
-
-// https://github.com/jaredhanson/passport-facebook
-// https://developers.facebook.com/docs/facebook-login/permissions/
-passport.use(
-  new FacebookStrategy(
-    {
-      clientID: process.env.FACEBOOK_ID,
-      clientSecret: process.env.FACEBOOK_SECRET,
-      profileFields: [
-        'id',
-        'cover',
-        'name',
-        'age_range',
-        'link',
-        'gender',
-        'locale',
-        'picture',
-        'timezone',
-        'updated_time',
-        'verified',
-        'email',
-      ],
-      callbackURL: '/login/facebook/return',
-      passReqToCallback: true,
-    },
-    async (req, accessToken, refreshToken, profile, done) => {
-      try {
-        if (profile.emails.length)
-          profile.emails[0].verified = !!profile._json.verified;
-        profile.displayName =
-          profile.displayName ||
-          `${profile.name.givenName} ${profile.name.familyName}`;
-        const user = await login(req, 'facebook', profile, {
-          accessToken,
-          refreshToken,
-        });
-        done(null, user);
-      } catch (err) {
-        done(err);
-      }
-    },
-  ),
-);
-
-// https://github.com/jaredhanson/passport-twitter
-passport.use(
-  new TwitterStrategy(
-    {
-      consumerKey: process.env.TWITTER_KEY,
-      consumerSecret: process.env.TWITTER_SECRET,
-      callbackURL: '/login/twitter/return',
-      includeEmail: true,
-      includeStatus: false,
-      passReqToCallback: true,
-    },
-    async (req, token, tokenSecret, profile, done) => {
-      try {
-        if (profile.emails && profile.emails.length)
-          profile.emails[0].verified = true;
-        const user = await login(req, 'twitter', profile, {
-          token,
-          tokenSecret,
-        });
-        done(null, user);
-      } catch (err) {
-        done(err);
-      }
-    },
-  ),
-);
-
 passport.use(
   new LocalStrategy((email, password, cb) => {
     console.log('Inside local strategy', email, password);
@@ -221,7 +122,7 @@ passport.use(
         'emails.email': email,
       })
       .first('users.*')
-      .then(user => {
+      .then((user) => {
         console.log(user);
         if (!user || user === undefined) cb(null, false);
         else {
