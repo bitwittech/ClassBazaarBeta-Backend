@@ -1,19 +1,9 @@
-import {
-  mongoCoursera,
-  mongoEdx,
-  mongoFl,
-  mongoSl,
-  mongoSwayam,
-  mongoUdacity,
-  mongoUdemy,
-  mongoUpG,
-} from '../mongoclient';
-
 import { Router } from 'express';
 import db from '../db';
 import fetch from 'node-fetch';
 import { filter } from 'rxjs/operators';
 import mailer from './../email';
+import { mongoclient } from '../mongoclient';
 import { parse } from 'node-html-parser';
 
 const assert = require('assert');
@@ -428,49 +418,42 @@ router.get('/api/course/', async (req, res) => {
   console.log(summaryData);
 
   let CLIENT, mongoDBURL, dbName, collectionName, key;
+  CLIENT = mongoclient;
   if (provider === 'Coursera') {
-    CLIENT = mongoCoursera;
     dbName = 'heroku_b5kg98fc';
     collectionName = 'coursera';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'edX') {
     console.log('EDX found');
-    CLIENT = mongoEdx;
     dbName = 'classbazaar';
     collectionName = 'edx';
     key = 'uuid';
   } else if (provider === 'FutureLearn') {
-    CLIENT = mongoFl;
     dbName = 'classbazaar';
     collectionName = 'futureLearn';
     key = 'uuid';
   } else if (provider === 'SimpliLearn') {
-    CLIENT = mongoSl;
     dbName = 'heroku_glmmwlk5';
     collectionName = 'simplilearn';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'upGrad') {
-    CLIENT = mongoUpG;
     dbName = 'heroku_h05wbcsj';
     collectionName = 'upgrad';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'Udacity') {
-    CLIENT = mongoUdacity;
     dbName = 'heroku_glmmwlk5';
     collectionName = 'udacity';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else if (provider === 'Udemy') {
-    CLIENT = mongoUdemy;
     dbName = 'classbazaar';
     collectionName = 'udemy';
     key = 'title';
     uuid = summaryData.title;
   } else if (provider === 'Swayam') {
-    CLIENT = mongoSwayam;
     dbName = 'heroku_glmmwlk5';
     collectionName = 'swayam-march-2020';
     key = '_id';

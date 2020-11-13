@@ -72,7 +72,7 @@ app.set('trust proxy', 'loopback');
 // );
 app.use(
   cors({
-    origin: function(origin, callback) {
+    origin: function (origin, callback) {
       return callback(null, true);
     },
     optionsSuccessStatus: 200,
@@ -99,8 +99,8 @@ app.use(passport.session());
 app.use(flash());
 
 app.use(accountRoutes);
-app.use(edxRoutes);
-app.use(udemyRoutes);
+// app.use(edxRoutes);
+// app.use(udemyRoutes);
 app.use(courseListRoutes);
 app.use(userRoutes);
 
@@ -138,7 +138,7 @@ app.get('/graphql/schema', (req, res) => {
 
 app.use(
   '/graphql',
-  expressGraphQL(req => ({
+  expressGraphQL((req) => ({
     schema,
     context: new Context(req),
     graphiql: process.env.NODE_ENV !== 'production',

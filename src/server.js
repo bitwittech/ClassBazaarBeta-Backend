@@ -10,28 +10,24 @@
 
 import app from './app';
 import db from './db';
-import redis from './redis';
 import errors from './errors';
-import {mainConnect} from './mongoclient'
-
+import { mainConnect } from './mongoclient';
+import redis from './redis';
 
 const port = process.env.PORT || 8080;
 const host = process.env.HOSTNAME || '0.0.0.0';
 
-
-
-
-//Connect to all the mongoDB 
-mainConnect().then(()=>{
-  console.log("MONGO CLIENTS CONNECTED")
-
-}).catch((error)=>{
-  console.log("MONGO CLIENTS CONNECTION FAILED",error)
-})
+//Connect to all the mongoDB
+mainConnect()
+  .then(() => {
+    console.log('MONGO CLIENTS CONNECTED');
+  })
+  .catch((error) => {
+    console.log('MONGO CLIENTS CONNECTION FAILED', error);
+  });
 // Launch Node.js server
 const server = app.listen(port, host, () => {
   console.log(`Node.js API server is listening on http://${host}:${port}/`);
-  
 });
 
 // Shutdown Node.js app gracefully
