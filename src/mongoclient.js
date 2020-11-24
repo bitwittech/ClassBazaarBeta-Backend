@@ -8,6 +8,7 @@ const connectCommon = async () => {
       'mongodb://classbazaar:CBPassword2019!@159.89.167.238:32768/',
       { useNewUrlParser: true },
     );
+    console.log('Client connected');
     mongoClient = mgClient;
   } catch (error) {
     console.log('Udemy Mongo Error', error);

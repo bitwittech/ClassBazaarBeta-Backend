@@ -3,7 +3,7 @@ import db from '../db';
 import fetch from 'node-fetch';
 import { filter } from 'rxjs/operators';
 import mailer from './../email';
-import { mongoclient } from '../mongoclient';
+import { mongoClient } from '../mongoclient';
 import { parse } from 'node-html-parser';
 
 const assert = require('assert');
@@ -418,7 +418,7 @@ router.get('/api/course/', async (req, res) => {
   console.log(summaryData);
 
   let CLIENT, mongoDBURL, dbName, collectionName, key;
-  CLIENT = mongoclient;
+  CLIENT = mongoClient;
   if (provider === 'Coursera') {
     dbName = 'heroku_b5kg98fc';
     collectionName = 'coursera';
@@ -465,7 +465,7 @@ router.get('/api/course/', async (req, res) => {
   console.log({ key });
   var query = {};
   query[key] = uuid;
-  console.log({ CLIENT });
+  console.log({ CLIENT, mongoClient });
   try {
     const RESD = await CLIENT.db(dbName)
       .collection(collectionName)
