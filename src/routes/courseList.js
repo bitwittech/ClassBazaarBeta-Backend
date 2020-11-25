@@ -454,8 +454,8 @@ router.get('/api/course/', async (req, res) => {
     key = 'title';
     uuid = summaryData.title;
   } else if (provider === 'Swayam') {
-    dbName = 'heroku_glmmwlk5';
-    collectionName = 'swayam-march-2020';
+    dbName = 'classbazaar';
+    collectionName = 'swayam';
     key = '_id';
     uuid = new ObjectId(uuid);
   } else {
