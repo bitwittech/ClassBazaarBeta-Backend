@@ -129,6 +129,25 @@ router.post(
   },
 );
 
+router.post('/verifyMobileNumber',(req, res, next) => {
+    const mobileNumber = req.mobileNumber;
+    const userName = req.username;
+    db.table('users')
+    .where('username', '=', userName)
+    .andWhere({ 'mobilePhone': mobileNumber })
+    .first()
+    .then(r => {
+      res.status(200).json({
+        success: true,
+      });
+    });
+  },
+  (err, req, res, next) => {
+    // Handle error
+    return res.status(200).send({ success: false });
+  },
+);
+
 router.post('/register', (req, res) => {
   const name = req.body.name;
   const email = req.body.email;
