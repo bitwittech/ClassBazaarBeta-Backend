@@ -741,6 +741,50 @@ router.post('/api/newregistration', (req, res) => {
     });
 });
 
+router.post('/api/edxresult', (req, res) => {
+  const { userid, coupon_code, pay_amount, Intelligence_result, Interest_result, career_path } = req.body;
+  db.table('newedxresult')
+    .insert({
+      userid,
+      coupon_code, 
+      pay_amount, 
+      Intelligence_result, 
+      Interest_result, 
+      career_path
+    })
+    .then((data) => {
+      res.status(200).send({
+        status: 'Result Added successfully',
+      });
+    })
+    .catch((e) => {
+      console.log('ERROR', e);
+      res.status(500).send({ status: 'Error' });
+    });
+});
+
+router.put('/api/edxresult', (req, res) => {
+  const { userid, coupon_code, pay_amount, Intelligence_result, Interest_result, career_path } = req.body;
+
+  db.table('newedxresult')
+      .where('userid', '=', req.body.userid)
+      .first()
+      .then(u => {
+          db.table('newedxresult')
+            .where('userid', '=', req.body.userid)
+            .first()
+            .update({ userid, coupon_code, pay_amount, Intelligence_result, Interest_result, career_path })
+            .then(f => {
+              res.send({ status: 'success', message: 'Result updated added' });
+            })
+            .catch((e) => {
+              console.log('ERROR', e);
+              res.status(500).send({ status: 'Error' });
+            });
+      });
+});
+
+
 function parseQueryString(req) {
   let st,
     en,
