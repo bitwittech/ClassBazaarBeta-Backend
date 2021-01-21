@@ -853,4 +853,22 @@ function parseQueryString(req) {
   ];
 }
 
+router.post('/api/newLoginDetails', (req, res) => {
+   db
+      .table('newregistration')
+      .where('email_address', '=', req.body.email)
+      .first()
+      .then((user) => {
+        res.send({ data: user });
+      });
+});
+
+router.get('/api/newLogin', (req, res) => {
+   db
+      .table('newregistration')
+      .then((user) => {
+        res.send({ data: user });
+      });
+});
+
 export default router;
