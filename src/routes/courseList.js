@@ -95,6 +95,7 @@ function getQueries(
     if (feeFilter === 'price:paid') {
       console.log('Query for free courses');
       qb.whereNotNull('price');
+      qb.orWhere('price', '<>',0);
     }
     if (startDateFilter === 'start:flexible') {
       // console.log('Query for flexible start date');
@@ -103,8 +104,11 @@ function getQueries(
     if (startDateFilter === 'start:lte30') {
       // console.log('Query for flexible start date with lte30');
       var future = new Date();
+      var past = new Date();
       future.setDate(future.getDate() + 30);
+      past.setDate(past.getDate() - 30);
       qb.where('start_date', '<=', future);
+      qb.andWhere('start_date', '>=', past)
       // .orWhere('is_flexible', '=', true);
     }
     if (startDateFilter === 'start:gte30') {
