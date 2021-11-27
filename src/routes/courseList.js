@@ -878,13 +878,521 @@ router.get('/api/newLogin', (req, res) => {
 
 const axios = require('axios');
 router.get('/api/getFeeds', async (req, res) => {
-  let response = await axios.get('https://www.futurelearn.com/feeds/courses');
-      let courses = response.data;
-  console.log("aaaaa",courses);
-  res.send({
-    test:courses,
-    data: ['Test']
-  });
+//   let response = await axios.get('https://www.futurelearn.com/feeds/courses');
+//       let courses = response.data;
+//   console.log("aaaaa",courses);
+//   res.send({
+//     test:courses,
+//     data: ['Test']
+//   });
+  
+  
+  try {
+
+        let response = await axios.get('https://www.futurelearn.com/feeds/courses');
+
+        let courses = response.data;
+
+        courses.forEach((course) => {
+            let i = 0;   
+
+            
+
+            if(course.organisation.name == 'University of Reading'){
+                i = i+5;
+
+            } if(course.organisation.name == 'Lancaster University'){
+                i = i+5;
+
+            } if(course.organisation.name == 'University of Birmingham'){
+                i = i+10;
+
+            } if(course.organisation.name == 'The University of Sheffield'){
+                i = i+10;
+            }  if(course.organisation.name == 'University of Leicester'){
+                i = i+5 ;
+            }if(course.organisation.name == 'University of Southampton'){
+                i = i+10;
+            }if(course.organisation.name == 'The University of Edinburgh'){
+                i = i+10;
+            }if(course.organisation.name == 'University of Bath'){
+                i = i+5;
+            } if(course.organisation.name == 'University of Strathclyde'){
+                i = i+5;
+            }if(course.organisation.name == "King's College London"){
+                i = i+10;
+            }if(course.organisation.name == 'UEA (University of East Anglia)'){
+                i = i+5;
+            }if(course.organisation.name == 'The University of Warwick'){
+                i = i+10;
+            } if(course.organisation.name == 'The Open University'){
+                i = i+5;
+            } if(course.organisation.name == 'The University of Nottingham'){
+                i = i+5;
+            }if(course.organisation.name == 'University of Glasgow'){
+                i = i+5;
+            } if(course.organisation.name == 'University of Leeds'){
+                i = i+10;
+            }if(course.organisation.name == 'British Council'){
+                i = i+5;
+            }if(course.organisation.name == 'Trinity College Dublin'){
+                i = i+7;
+            } if(course.organisation.name == 'Newcastle University'){
+                i = i+5;
+            }if(course.organisation.name == 'University of Liverpool'){
+                i = i+5;
+            }if(course.organisation.name == 'Monash University'){
+                i = i+5;
+            }if(course.organisation.name == 'The University of Auckland'){
+                i = i+5;
+            }if(course.organisation.name == 'University of Groningen'){
+                i = i+10;
+            }if(course.organisation.name == 'University of Bristol'){
+                i = i+10;
+            }if(course.organisation.name == 'UNSW Sydney'){
+                i = i+10;
+            }if(course.organisation.name == 'University of Exeter'){
+                i = i+5;
+            }if(course.organisation.name == 'University of Oslo'){
+                i = i+5;    
+            }if(course.organisation.name == 'University of Dundee'){
+                i = i+5; 
+            } if(course.organisation.name == 'National Film and Television School'){
+                i = i+5;
+            }if(course.organisation.name == 'London School of Hygiene & Tropical Medicine'){
+                i = i+5;
+            } if(course.organisation.name == 'University of Cape Town'){
+                i = i+5;
+            } if(course.organisation.name == 'University of Bergen'){
+                i = i+5;
+            }
+            if(course.organisation.name == 'University of Twente'){
+                i=i+5;
+            }
+            if(course.organisation.name == 'Tel Aviv University & Yad Vashem'){
+                i = i+5;
+            } if(course.organisation.name == "St George's, University of London"){
+                i = i+5;
+            }if(course.organisation.name == 'University of Aberdeen'){
+                i = i+5;
+            }if(course.organisation.name == 'Hans Christian Andersen Centre'){
+                i = i+5;
+            }if(course.organisation.name == 'Pompeu Fabra University Barcelona'){
+                i = i+5;
+            }if(course.organisation.name == 'Shanghai International Studies University (SISU)'){
+                i = i+5;
+            }if(course.organisation.name == 'SOAS University of London'){
+                i = i+5;
+            }if(course.organisation.name == 'University of Basel'){
+                i = i+10;
+            } if(course.organisation.name == 'UNESCO UNITWIN Complex Systems Digital Campus'){
+                i = i+7;
+            } if(course.organisation.name == 'Sungkyunkwan University (SKKU)'){
+                i = i+10;
+            } if(course.organisation.name == 'UNSW Canberra'){
+                i = i+5;
+            } if(course.organisation.name == 'Universit√© Libre de Bruxelles'){
+                i = i+5;
+            } if(course.organisation.name == 'University of Wollongong') {
+                i = i+5;
+            } if(course.organisation.name =="The British Film Institute (BFI)"){
+                i = i+5;
+            } if(course.organisation.name == 'City University of Hong Kong'){
+                i = i+5;
+            } if(course.organisation.name == 'UCL (University College London)'){
+                i = i+5;
+            }  if(course.organisation.name == 'Royal Holloway, University of London'){
+                i = i+5;
+            } if(course.organisation.name == 'The University of Manchester'){
+                i = i+10;
+            } if(course.organisation.name == 'Keio University'){
+                i = i+5;
+            } if(course.organisation.name == 'Eindhoven University of Technology'){
+                i = i+5;
+            } if(course.organisation.name == 'Queensland University of Technology'){
+                i = i+5;
+            }  if(course.organisation.name == 'Cancer Research UK'){
+                i = i+10;
+            } if(course.organisation.name == 'Universit√† per Stranieri di Siena (UniStraSi)'){
+                i = i+5;
+            } if(course.organisation.name == 'Health Education England'){
+                i = i+10;
+            } if(course.organisation.name == 'Stellenbosch University'){
+                i = i+5;
+            }  if(course.organisation.name == 'Weizmann Institute of Science'){
+                i = i+10;
+            }  if(course.organisation.name == 'Cambridge Assessment English'){
+                i = i+7;
+            }  if(course.organisation.name == 'Complutense University of Madrid'){
+                i = i+5;
+            }  if(course.organisation.name == 'National STEM Learning Centre'){
+                i = i+10;
+            } if(course.organisation.name == 'Hanyang University'){
+                i = i+5;
+            } if(course.organisation.name == "RMIT University"){
+                i = i+5;
+            }  if(course.organisation.name == 'Goldsmiths, University of London'){
+                i = i+5;
+            }  if(course.organisation.name == 'Durham University'){
+                i = i+5;
+            }  if(course.organisation.name == 'EUMETSAT'){
+                i = i+5;
+            } if(course.organisation.name == 'Middlesex University Business School'){
+                i = i+7;
+            }  if(course.organisation.name == 'Stockholm Environment Institute'){
+                i = i+5;
+            }  if(course.organisation.name == 'Northumbria University Institute of the Humanities'){
+                i = i+5;
+            }  if(course.organisation.name == 'National Tsing Hua University'){
+                i = i+5;
+            }  if(course.organisation.name == 'The University of Waikato'){
+                i = i+5;
+            }  if(course.organisation.name == 'University of York'){
+                i = i+10;
+            } if(course.organisation.name == 'International Confederation of Societies of Authors and Composers (CISAC)'){
+                i = i+7;
+            }  if(course.organisation.name == 'University of Stellenbosch Business School Executive Development'){
+                i = i+5;
+            } if(course.organisation.name == 'Ambition School Leadership'){
+                i = i+5;
+            }  if(course.organisation.name == "√âcole Nationale de l'Aviation Civile"){
+                i = i+10;
+            }  if(course.organisation.name == 'University of Malaya'){
+                i = i+5;
+            }  if(course.organisation.name == 'Cardiff University'){
+                i = i+5;
+            } if(course.organisation.name == 'Partnership for Advanced Computing in Europe (PRACE)'){
+                i = i+7;
+            }  if(course.organisation.name == 'Grenoble Ecole de Management'){
+                i = i+5;
+            }  if(course.organisation.name == 'Deakin University'){
+                i = i+5;
+            }  if(course.organisation.name == 'The University of Kent'){
+                i = i+5;
+            }  if(course.organisation.name == 'International Federation of Red Cross and Red Crescent Societies (IFRC)'){   
+                i = i+7;
+            }  if(course.organisation.name == 'Raspberry Pi Foundation'){
+                i = i+7;
+
+            } if(course.organisation.name == 'Into Film'){
+                i = i+5;
+
+            } if(course.organisation.name == 'The Pennsylvania State University'){
+                i = i+10;
+
+            }  if(course.organisation.name == 'University of California, Berkeley'){
+                i = i+7;
+
+            }  if(course.organisation.name == 'Chartered Institute of Building Academy'){
+                i = i+7;
+
+            }  if(course.organisation.name == 'The Graduate Institute of International and Development Studies'){
+                i = i+7;
+
+            } if(course.organisation.name == 'Purdue University'){
+                i = i+10;
+
+            } if(course.organisation.name == 'Manchester Metropolitan University'){
+                i = i+5;
+
+            }  if(course.organisation.name == 'BSAC'){
+                i = i+10;
+
+            }  if(course.organisation.name == 'Wellcome Genome Campus Advanced Courses and Scientific Conferences'){
+                i = i+7;
+
+            }  if(course.organisation.name == 'European University Institute (EUI)'){
+                i = i+5;
+
+            }  if(course.organisation.name == 'Darden School of Business, University of Virginia'){
+                i = i+5;
+
+            }  if(course.organisation.name == 'Abertay University'){
+                i = i+5;
+
+            }  if(course.organisation.name == 'Colorado State University'){
+                i = i+5;
+
+            } if(course.organisation.name == 'Kogod School of Business at American University'){
+                i = i+5;
+
+            } if(course.organisation.name == 'University of Padova'){
+                i = i+5;
+
+            } if(course.organisation.name == 'National Chiao Tung University'){
+                i = i+5;
+
+            } if(course.organisation.name == 'Humanists UK'){
+                i = i+7;
+
+            }  if(course.organisation.name == 'Griffith University'){
+                i = i+5;
+
+            } if(course.organisation.name == 'Royal Observatory Greenwich'){
+                i = i+7;
+
+            } if(course.organisation.name == 'Macmillan Education'){
+                i = i+7;
+            } if(course.organisation.name == 'Norwegian University of Science and Technology (NTNU)'){
+                i = i+5;
+
+            } if(course.organisation.name == 'New York Institute of Finance'){
+                i = i+5;
+
+            } if(course.organisation.name == 'EIT InnoEnergy'){
+                i = i+7;
+
+            }  if(course.organisation.name == 'Universit√† della Svizzera Italiana (USI)'){
+                i = i+5;
+
+            }  if(course.organisation.name == 'Yad Vashem'){
+                i = i+7;
+
+            } if(course.organisation.name == 'Law Society of Scotland'){
+                i = i+5;
+            } if(course.organisation.name == 'Dublin City University'){
+                i = i+7;
+            } if(course.organisation.name == "Film Distributors' Association"){
+                i = i+5;
+            }  if(course.organisation.name == 'Murdoch University'){
+                i = i+5;
+            } if(course.organisation.name == 'The University of Melbourne'){
+                i = i+10;
+            } if(course.organisation.name == 'Coventry University'){
+                i = i+5;
+            } if(course.organisation.name == 'Accenture'){
+                i = i+7;
+            } if(course.organisation.name == 'Trinity Laban Conservatoire of Music and Dance'){
+                i = i+5;
+            } if(course.organisation.name == 'CIPD - Chartered Institute of Personnel and Development'){
+                i = i+7;
+            } if(course.organisation.name == 'Cambridge University Press'){
+                i = i+7;
+            } if(course.organisation.name == 'Universidad Nacional de C√≥rdoba'){
+                i = i+5;
+            } if(course.organisation.name == 'UNESCO'){
+                i = i+7;
+            } if(course.organisation.name == 'London College of Fashion'){
+                i = i+5;
+            } if(course.organisation.name == 'Association for Continence Advice'){
+                i = i+5;
+            } if(course.organisation.name == 'Swedish University of Agricultural Sciences (SLU)'){
+                i = i+10;
+            } if(course.organisation.name == 'Vrije Universiteit Amsterdam'){
+                i = i+5;
+            } if(course.organisation.name == "The King's Fund"){
+                i = i+5;
+            } if(course.organisation.name == 'Emergency Planning College (EPC)'){
+                i = i+7;
+            } if(course.organisation.name == 'Aga Khan Trust for Culture'){
+                i = i+5;
+            } if(course.organisation.name == 'Johns Hopkins University'){
+                i = i+10;
+            } if(course.organisation.name == 'National Maritime Museum'){
+                i = i+5;
+            }  if(course.organisation.name == 'Hanken School of Economics'){
+                i = i+5;
+            }  if(course.organisation.name == 'ISAE-SUPAERO'){
+                i = i+10;
+            } if(course.organisation.name == 'Jindal Centre for Social Innovation + Entrepreneurship'){
+                i = i+7;
+            } if(course.organisation.name == 'EIT Food'){
+                i = i+7;
+            } if(course.organisation.name == 'British Heart Foundation'){
+                i = i+10;
+            } if(course.organisation.name == "The University of Newcastle Australia"){
+                i = i+5;
+            }
+            if(course.organisation.name == "Girls' Day School Trust"){
+                i=i+5;
+            } 
+            if(course.organisation.name == 'Glion Institute of Higher Education'){
+                i = i+5;
+            } if(course.organisation.name == 'University of Roehampton'){
+                i = i+5;
+            } if(course.organisation.name == 'Anglia Ruskin University'){
+                i = i+5;
+            } if(course.organisation.name == 'EIT'){
+                i = i+7;
+            } if(course.organisation.name == 'NHS Leadership Academy'){
+                i = i+10;
+            } if(course.organisation.name == 'University of Oxford'){
+                i = i+10;
+            } if(course.organisation.name == 'Amnesty International'){
+                i = i+7;
+            } if(course.organisation.name == 'ABRSM'){
+                i = i+7;
+            } if(course.organisation.name == 'HKU School of Professional and Continuing Education'){
+                i = i+10;
+            } if(course.organisation.name == 'Chartered College of Teaching'){
+                i = i+5;
+            }  if(course.organisation.name == 'Babcock Education'){
+                i = i+7;
+            }  if(course.organisation.name == 'Fashion Revolution'){
+                i = i+5;
+            } if(course.organisation.name == 'Nankai University'){
+                i = i+5;
+            }
+              if(course.organisation.name == 'Chartered Insurance Institute'){
+                i = i+7;
+              } if(course.organisation.name == 'Institut Fran√ßais de la mode (IFM)'){
+                i = i+5;
+              } if(course.organisation.name == 'BGI'){
+                    i = i+5;
+              } 
+
+              var desPer,cerPer,runPer,subPer,datePer,orgPer = 0;
+              var orgPer = i * 0.15;
+           
+              var datePer = 0;
+            if(course.runs[0].start_date != null){
+                
+                datee = course.runs.pop();
+                dte = datee.start_date;
+                console.log(dte);
+                    var d1 = new Date();
+                    var dateOne = new Date(d1.getFullYear(), d1.getMonth()+1, d1.getDate());
+                    var d2 =  dte;
+                    const myArr = d2.split("-");
+                    var dateTwo = new Date(myArr[0], myArr[1], myArr[2]);
+                if(dateOne < dateTwo){
+                    function weeksBetween(dateOne, dateTwo) {
+                        return Math.round((dateTwo - dateOne) / (7 * 24 * 60 * 60 * 1000));
+                    }
+
+                    var weeks = weeksBetween(dateOne,dateTwo);
+
+                    var dt = 0;
+                    if(weeks <= 1){
+                        dt = dt+10;
+                    }
+                    if(weeks == 2){
+                        dt = dt+8;
+                    }
+                    if(weeks == 3){
+                        dt = dt+6;
+                    }
+                    if(weeks == 4){
+                        dt = dt+4;
+                    }
+                    if(weeks >= 5){
+                        dt = dt+2;
+                    }
+                    datePer = dt * 0.20;
+                }
+                
+        }
+            if(course.categories != null){
+
+                if(course.categories[0] == 'Business & Management' || course.categories[1] == 'Business & Management'){
+                    var subject = 'B';
+                }if(course.categories[0] == 'Creative Arts & Media' || course.categories[1] == 'Creative Arts & Media'){
+                    var subject = 'A';
+                }
+                if(course.categories[0] == 'Health & Psychology' || course.categories[1] == 'Health & Psychology'){
+                    var subject = 'HL';
+                }if(course.categories[0] == 'History' || course.categories[1] == 'History'){
+                    var subject = 'SO';
+                }if(course.categories[0] == 'Languages & Cultures' || course.categories[1] == 'Languages & Cultures'){
+                    var subject = 'A';
+                }if(course.categories[0] == 'Law' || course.categories[1] == 'Law'){
+                    var subject = 'SO';
+                }if(course.categories[0] == 'Literature' || course.categories[1] == 'Literature'){
+                    var subject = 'A';
+                }if(course.categories[0] == 'Nature & Environment' || course.categories[1] == 'Nature & Environment'){
+                    var subject = 'SO';
+                }if(course.categories[0] == 'Politics & the Modern World' || course.categories[1] == 'Politics & the Modern World'){
+                    var subject = 'SO';
+                }if(course.categories[0] == 'Science, Engineering & Maths' || course.categories[1] == 'Science, Engineering & Maths'){
+                    var subject = 'SENG';
+                }if(course.categories[0] == 'Study Skills' || course.categories[1] == 'Study Skills'){
+                    var subject = 'O';
+                }if(course.categories[0] == 'Teaching' || course.categories[1] == 'Teaching'){
+                    var subject = 'A';
+                }if(course.categories[0] == 'Tech & Coding' || course.categories[1] == 'Tech & Coding'){
+                    var subject = 'CS + DEV';
+                }
+                var sub = 0;
+                if(subject  == 'CS' || subject == 'B' || subject == 'DEV' || subject == 'DA'){
+                   var sub = sub+10; 
+                }
+                if(subject  == 'SENG' || subject == 'M'){
+                   var sub = sub+7; 
+                }
+                if(subject  == 'SO' || subject == 'O' || subject == 'HL' || subject == 'A'){
+                   var sub = sub+5; 
+                }
+            }
+            subPer = sub * 0.10; 
+            if(course.runs != null){
+                var run = 0;
+                var keyCount  = Object.keys(course.runs).length;
+                if(keyCount >= 2){
+                var run = run + 10;
+                }else{
+                    var run = run + 8;
+                }
+            }
+            runPer = run * 0.15;
+            console.log('cert',course.has_certificates);
+            var cer = 0;
+            if(course.has_certificates == true){
+                cer = cer + 10;
+            }
+            cerPer = cer * 0.30;
+
+            if(course.description != null){
+               var  str = course.description;
+            var  count = str.length;
+            for (var j = 0; j < count; j++) {
+               
+            }
+            var des = 0;
+            if(j >= 200){
+                des=des+9;
+            }if(j> 100 && j < 200){
+               var des=des+10;
+            }  
+            if(j< 100){
+               var des=des+7;
+            }
+            }
+
+            desPer = des * 0.10;
+            console.log(des,cer,run,sub,datePer,orgPer);
+            total = desPer + cerPer + runPer + subPer + datePer + orgPer;
+            // console.log(i);
+            console.log('totl',total);
+             
+            var courseName = course.name;
+            var courseTitle = courseName.replace(/"/g,'`');
+            var organisationName = course.organisation.name;
+            var organisationTitle = organisationName.replace(/"/g,'`');
+            var courseEducator = course.educator;
+            var courseTeacher = courseEducator.replace(/"/g,'`');
+            
+            k = 0;
+          var sql = 'INSERT INTO data set title = "' + courseTitle + '", start_date = "' + dte + '", price = "FREE", price_currency = "", subjects = "' + course.categories[0] +',' + course.categories[1] + '", provider = "Future Learn", university = "' + organisationTitle + '", rank = "1",ranking_points = "'+ total +'", has_paid_certificate = "' + course.has_certificates +'", url = "' + course.url + '", instructors = "' + courseTeacher + '",description="' + course.description + '" ';
+          db.query(sql,  (err, res) => {
+            console.log(err, res);    
+            db.end();
+          });
+            
+            console.log(++k);
+        });
+        });
+
+        return res.status(200).json(courses).end();
+
+
+    } catch (e) {
+        console.log(e);
+        return res.status(500).json(e.toString()).end();
+    }
+  
+  
+  
+  
 });
 
 
