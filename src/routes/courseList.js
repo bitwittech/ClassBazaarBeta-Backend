@@ -1408,4 +1408,14 @@ router.get('/api/getFeeds', async (req, res) => {
 });
 
 
+
+router.get('/api/getFeedsList', async (req, res) => {
+  const dataModel = db.table('data');
+  const data = await dataModel;
+  res.send({
+    data
+  });
+});
+
+
 export default router;
