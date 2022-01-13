@@ -253,6 +253,7 @@ router.get('/api/v2/courses/', async (req, res) => {
       }
 
       const dataModel = db.table('data').where((qb) => {
+        var datetime = new Date();
         if (searchQuery !== '' && filter === '') {
           qb.andWhere((subQB) => {
             subQB
@@ -261,9 +262,16 @@ router.get('/api/v2/courses/', async (req, res) => {
           });
         }
         qb.andWhere('provider', '=', p);
-        // qb.andWhere(subQB => {
-        //   subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
-        // });
+        qb.andWhere(subQB => {
+          subQB.where('start_date', '>=', datetime).orWhereRaw('start_date is null');
+        });
+        qb.andWhere(subQB => {
+          subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+          
+        });
+//         qb.andWhere(subQB => {
+//           subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+//         });
 
         if (subjectFilter !== 'all') {
           // console.log('Inside the filter for subjects');
