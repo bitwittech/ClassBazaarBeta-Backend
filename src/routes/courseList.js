@@ -253,9 +253,6 @@ router.get('/api/v2/courses/', async (req, res) => {
       }
 
       const dataModel = db.table('data').where((qb) => {
-        var datetime = new Date();
-        console.log('date',datetime);
-        var dateToday = datetime.toISOString().slice(0,10);
         if (searchQuery !== '' && filter === '') {
           qb.andWhere((subQB) => {
             subQB
@@ -264,13 +261,9 @@ router.get('/api/v2/courses/', async (req, res) => {
           });
         }
         qb.andWhere('provider', '=', p);
-        qb.andWhere(subQB => {
-          subQB.where('start_date', '>=', datetime).orWhereRaw('start_date is null');
-        });
-        qb.andWhere(subQB => {
-          subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
-          
-        });
+        // qb.andWhere(subQB => {
+        //   subQB.where('locale', '=', `English`).orWhereRaw('locale is null');
+        // });
 
         if (subjectFilter !== 'all') {
           // console.log('Inside the filter for subjects');
@@ -310,7 +303,6 @@ router.get('/api/v2/courses/', async (req, res) => {
         if (startDateFilter === 'start:gte30') {
           // console.log('Query for flexible start date with gte30');
           var future = new Date();
-          console.log('future',future);
           future.setDate(future.getDate() + 30);
           qb.where('start_date', '>=', future);
           // .orWhere('is_flexible', '=', true);
@@ -391,7 +383,7 @@ router.get('/api/v2/courses/', async (req, res) => {
         });
         Promise.all([totalCount])
           .then((r) => {
-            console.log('query',r[0][0]);
+            console.log(r[0][0]);
             const total = parseInt(r[0][0].count);
             res.send({
               data: finalData,
@@ -2468,154 +2460,627 @@ router.post('/api/getFeedsList', async (req, res) => {
 });
 
 
-const xml2js = require('xml2js');
-var convert = require('xml-js');
-var xml = require('fs').readFileSync('routes/udemy.xml', 'utf8');
 
-router.get("/api/udemyFeeds", async (req, res) => {
+router.get("/api/getEdx", async (req, res) => {
+
+
   try {
-    xml2js.parseString(xml, (err, result) => {
-      if (err) {
-        throw err;
+
+    let response = await axios.get('https://api.edx.org/catalog/v1/catalogs/548/courses/', {
+      headers: {
+        'Authorization': 'JWT eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiAicmlubXlieWVkbnVhdzVwaGxpZENvY0R1ZGJ5bGJPYkRpYkpvZGJvc2dldHNFYmFsZDQiLCAiZXhwIjogMTYzOTE3MTIwOSwgImlhdCI6IDE2MzkxMzUyMDksICJpc3MiOiAiaHR0cHM6Ly9jb3Vyc2VzLmVkeC5vcmcvb2F1dGgyIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJDbGFzc0JhemFhciIsICJzY29wZXMiOiBbInJlYWQiLCAid3JpdGUiLCAiZW1haWwiLCAicHJvZmlsZSJdLCAidmVyc2lvbiI6ICIxLjIuMCIsICJzdWIiOiAiOGFmNDkzNDk5ZTQyYjdkZDY2YjI5MTc3NjY5Y2FhOWUiLCAiZmlsdGVycyI6IFtdLCAiaXNfcmVzdHJpY3RlZCI6IGZhbHNlLCAiZW1haWxfdmVyaWZpZWQiOiB0cnVlLCAiZW1haWwiOiAibWVodGFyYWpiQGdtYWlsLmNvbSIsICJuYW1lIjogIkNsYXNzIEJhemFhciBMTFAiLCAiZmFtaWx5X25hbWUiOiAiIiwgImdpdmVuX25hbWUiOiAiIiwgImFkbWluaXN0cmF0b3IiOiBmYWxzZSwgInN1cGVydXNlciI6IGZhbHNlfQ.AXxVA0vUJBIW7uCGj9WcL-5yj1ukVNeR4S0XJuWpFuw'
       }
-      var i = 0;
-      result.merchandiser.product.forEach((tempresponse) => {
-
-        if (tempresponse.m1 != null) {
-          var rating = tempresponse.m1.toString();
-          // console.log(typeof rating);
-          var rate = rating.split("~~");
-          // console.log(rate);
-          var ratee = rate.toString();
-          var splitrating = ratee.split(">>");
-          var split = splitrating.toString();
-          var ra = split.split(",");
-
-          if (ra[1] >= 4.5) {
-            var finalrating = 10;
-          }
-          if (ra[1] >= 4.0 || ra[1] < 4.5) {
-            var finalrating = 9;
-          }
-          if (ra[1] >= 3.5 || ra[1] < 4.0) {
-            var finalrating = 8;
-          }
-          if (ra[1] <= 3.5) {
-            var finalrating = 6;
-          }
-
-          if (ra[5] >= 1000) {
-            var review = 10;
-          }
-          if (ra[5] < 1000) {
-            var review = 8;
-          }
+    });
+    let nextPage = response.data.next;
+    let courses = response.data.results;
+    let i = 0;
+    while (nextPage != null) {
+      ++i;
+      let tempresponse = await axios.get(nextPage, {
+        headers: {
+          'Authorization': 'JWT eyJhbGciOiJIUzI1NiJ9.eyJhdWQiOiAicmlubXlieWVkbnVhdzVwaGxpZENvY0R1ZGJ5bGJPYkRpYkpvZGJvc2dldHNFYmFsZDQiLCAiZXhwIjogMTYzOTE3MTIwOSwgImlhdCI6IDE2MzkxMzUyMDksICJpc3MiOiAiaHR0cHM6Ly9jb3Vyc2VzLmVkeC5vcmcvb2F1dGgyIiwgInByZWZlcnJlZF91c2VybmFtZSI6ICJDbGFzc0JhemFhciIsICJzY29wZXMiOiBbInJlYWQiLCAid3JpdGUiLCAiZW1haWwiLCAicHJvZmlsZSJdLCAidmVyc2lvbiI6ICIxLjIuMCIsICJzdWIiOiAiOGFmNDkzNDk5ZTQyYjdkZDY2YjI5MTc3NjY5Y2FhOWUiLCAiZmlsdGVycyI6IFtdLCAiaXNfcmVzdHJpY3RlZCI6IGZhbHNlLCAiZW1haWxfdmVyaWZpZWQiOiB0cnVlLCAiZW1haWwiOiAibWVodGFyYWpiQGdtYWlsLmNvbSIsICJuYW1lIjogIkNsYXNzIEJhemFhciBMTFAiLCAiZmFtaWx5X25hbWUiOiAiIiwgImdpdmVuX25hbWUiOiAiIiwgImFkbWluaXN0cmF0b3IiOiBmYWxzZSwgInN1cGVydXNlciI6IGZhbHNlfQ.AXxVA0vUJBIW7uCGj9WcL-5yj1ukVNeR4S0XJuWpFuw'
         }
-        var rat = finalrating * 0.30;
-        var rev = review * 0.25;
-        if (tempresponse.category != null) {
-          var course = tempresponse.category;
-          if (course[0].primary[0] == 'Business') {
-            var subject = 'B';
-          }
-          if (course[0].primary[0] == 'Design') {
-            var subject = 'A';
-          }
-          if (course[0].primary[0] == 'Development') {
-            var subject = 'DEV';
-          }
-          if (course[0].primary[0] == 'Health & Fitness') {
-            var subject = 'HL';
-          }
-          if (course[0].primary[0] == 'IT & Software') {
-            var subject = 'CS + DEV';
-          }
-          if (course[0].primary[0] == 'Lifestyle') {
-            var subject = 'HL';
-          }
-          if (course[0].primary[0] == 'Marketing') {
-            var subject = 'B';
-          }
-          if (course[0].primary[0] == 'Music') {
-            var subject = 'A';
-          }
-          if (course[0].primary[0] == 'Office Productivity') {
-            var subject = 'O';
-          }
-          if (course[0].primary[0] == 'Personal Development') {
-            var subject = 'O';
-          }
-          if (course[0].primary[0] == 'Photography') {
-            var subject = 'A';
-          }
-          if (course[0].primary[0] == 'Teaching & Academics') {
-            var subject = 'A';
-          }
-          // var subb = 0;
-          if (subject == 'CS' || subject == 'B' || subject == 'DEV' || subject == 'DA') {
-            var subb = 10;
-          }
-          if (subject == 'SENG' || subject == 'M') {
-            var subb = 7;
-          }
-          if (subject == 'SO' || subject == 'O' || subject == 'HL' || subject == 'A') {
-            var subb = 5;
-          }
+      });
+      nextPage = tempresponse.data.next;
+
+      courses.forEach((tempresponse) => {
+        let i = 0;
+
+        // console.log(tempresponse.course_runs[0].start);
+        // console.log(tempresponse.course_runs[0].full_description);
+        // console.log(tempresponse.course_runs[0].staff[0].enrollment_count);
+        // console.log(tempresponse.subjects[0].name);
+        // console.log(tempresponse.course_runs[0].seats[0].price);
+        // console.log(tempresponse.owners[0].name);
+        // console.log(tempresponse.course_runs[0].title);
+
+        var university = tempresponse.owners[0].name;
+        if (university == 'The University of Queensland') {
+          i = i + 10;
+        }
+        if (university == 'The University of California, San Diego') {
+          i = i + 10;
+        }
+        if (university == 'Delft University of Technology') {
+          i = i + 10;
+        }
+        if (university == 'The University of Maryland, College Park, University System of Maryland') {
+          i = i + 5;
+        }
+        if (university == 'RWTH Aachen University') {
+          i = i + 5;
+        }
+        if (university == 'Rochester Institute of Technology') {
+          i = i + 5;
+        }
+        if (university == 'Curtin University') {
+          i = i + 5;
+        }
+        if (university == 'The World Wide Web Consortium (W3C)') {
+          i = i + 7;
+        }
+        if (university == 'Chalmers University of Technology') {
+          i = i + 5;
+        }
+        if (university == 'The Georgia Institute of Technology') {
+          i = i + 10;
+        }
+        if (university == 'The University of Michigan, Microsoft In Education') {
+          i = i + 10;
+        }
+        if (university == 'University of Pennsylvania') {
+          i = i + 10;
+        }
+        if (university == 'Inter-American Development Bank') {
+          i = i + 5;
+        }
+        if (university == 'Indiana University') {
+          i = i + 5;
+        }
+        if (university == 'The Wharton School of the University of Pennsylvania') {
+          i = i + 10;
+        }
+        if (university == 'University System of Maryland, UMUC') {
+          i = i + 5;
+        }
+        if (university == 'Davidson Next') {
+          i = i + 5;
+        }
+        if (university == 'Massachusetts Institute of Technology') {
+          i = i + 10;
+        }
+        if (university == 'The Hong Kong Polytechnic University') {
+          i = i + 10;
+        }
+        if (university == 'IsraelX') {
+          i = i + 5;
+        }
+        if (university == 'Wageningen University & Research') {
+          i = i + 10;
+        }
+        if (university == 'Delft University of Technology, Wageningen University & Research, DelftWageningenX') {
+          i = i + 10;
+        }
+        if (university == 'Indian Institute of Management Bangalore') {
+          i = i + 10;
+        }
+        if (university == 'UMUC, University System of Maryland') {
+          i = i + 5;
+        }
+        if (university == 'University of Adelaide') {
+          i = i + 5;
+        }
+        if (university == 'The Hong Kong University of Science and Technology') {
+          i = i + 10;
+        }
+        if (university == 'Dartmouth College') {
+          i = i + 5;
+        }
+        if (university == 'The University of Michigan') {
+          i = i + 5;
+        }
+        if (university == 'Dartmouth College, IMT') {
+          i = i + 5;
+        }
+        if (university == 'World Bank Group') {
+          i = i + 7;
+        }
+        if (university == 'Wits University') {
+          i = i + 5;
+        }
+        if (university == 'Weston High School') {
+          i = i + 5;
+        }
+        if (university == 'Wellesley College') {
+          i = i + 10;
+        }
+        if (university == 'Waseda University') {
+          i = i + 5;
+        }
+        if (university == 'Victoria University of Wellington') {
+          i = i + 5;
+        }
+        if (university == 'Ural Federal University') {
+          i = i + 5;
+        }
+        if (university == 'University of Washington') {
+          i = i + 10;
+        }
+        if (university == 'University of Toronto') {
+          i = i + 10;
+        }
+        if (university == 'University of Maryland, Baltimore, University System of Maryland') {
+          i = i + 5;
+        }
+        if (university == 'University of Hong Kong') {
+          i = i + 10;
+        }
+        if (university == 'University of California, Berkeley') {
+          i = i + 5;
+        }
+        if (university == 'University of British Columbia') {
+          i = i + 10;
+        }
+        if (university == 'Universidad Galileo') {
+          i = i + 5;
+        }
+        if (university == 'Universidad del Rosario') {
+          i = i + 5;
+        }
+        if (university == 'UMUC, University of Maryland, Baltimore, University System of Maryland') {
+          i = i + 5;
+        }
+        if (university == 'Tsinghua University') {
+          i = i + 10;
+        }
+        if (university == 'Tokyo Institute of Technology') {
+          i = i + 5;
+        }
+        if (university == 'The University of Tokyo') {
+          i = i + 10;
+        }
+        if (university == 'The University of Texas of the Permian Basin') {
+          i = i + 5;
+        }
+        if (university == 'The University of Texas MD Anderson Cancer Center in Houston') {
+          i = i + 5;
+        }
+        if (university == 'The University of Texas Health Science Center at Houston (UTHealth) School of Public Health') {
+          i = i + 5;
+        }
+        if (university == 'The University of Texas at Austin') {
+          i = i + 10;
+        }
+        if (university == 'The University of Queensland, Microsoft In Education') {
+          i = i + 5;
+        }
+        if (university == 'The University of Newcastle, Australia') {
+          i = i + 5;
+        }
+        if (university == 'The University of Maryland Eastern Shore, University System of Maryland') {
+          i = i + 5;
+        }
+        if (university == 'The University of Iceland') {
+          i = i + 5;
+        }
+        if (university == 'The University of Edinburgh') {
+          i = i + 5;
+        }
+        if (university == 'The Smithsonian Institution') {
+          i = i + 5;
+        }
+        if (university == 'The Linux Foundation') {
+          i = i + 7;
+        }
+        if (university == 'The Islamic Research and Training Institute') {
+          i = i + 5;
+        }
+        if (university == 'The International Monetary Fund') {
+          i = i + 7;
+        }
+        if (university == 'TenarisUniversity') {
+          i = i + 5;
+        }
+        if (university == 'seakademieX') {
+          i = i + 5;
+        }
+        if (university == 'SDG Academy') {
+          i = i + 5;
+        }
+        if (university == 'SchoolYourself') {
+          i = i + 5;
+        }
+        if (university == 'Rice University') {
+          i = i + 5;
+        }
+        if (university == 'Red Hat') {
+          i = i + 5;
+        }
+        if (university == 'Purdue University') {
+          i = i + 10;
+        }
+        if (university == 'Princeton University') {
+          i = i + 10;
+        }
+        if (university == 'Pontificia Universidad Javeriana') {
+          i = i + 5;
+        }
+        if (university == 'Perkins School for the Blind') {
+          i = i + 5;
+        }
+        if (university == 'Peking University') {
+          i = i + 10;
+        }
+        if (university == 'NYIF') {
+          i = i + 10;
+        }
+        if (university == 'NUST MISIS') {
+          i = i + 5;
+        }
+        if (university == 'New York University') {
+          i = i + 10;
+        }
+        if (university == 'National Research Nuclear University') {
+          i = i + 10;
+        }
+        if (university == 'MongoDB University') {
+          i = i + 7;
+        }
+        if (university == 'Microsoft') {
+          i = i + 7;
+        }
+        if (university == 'Massachusetts Institute of Technology, University of Pennsylvania') {
+          i = i + 10;
+        }
+        if (university == 'MandarinX') {
+          i = i + 7;
+        }
+        if (university == 'LOGYCA') {
+          i = i + 5;
+        }
+        if (university == 'Kyoto University') {
+          i = i + 10;
+        }
+        if (university == 'KU Leuven University') {
+          i = i + 5;
+        }
+        if (university == 'KTH Royal Institute of Technology') {
+          i = i + 5;
+        }
+        if (university == 'KIx: Karolinska Institutet') {
+          i = i + 5;
+        }
+        if (university == 'ITMO University') {
+          i = i + 5;
+        }
+        if (university == 'IMT') {
+          i = i + 5;
+        }
+        if (university == 'Imperial College London, Imperial College Business School') {
+          i = i + 10;
+        }
+        if (university == 'Imperial College London') {
+          i = i + 10;
+        }
+        if (university == 'Imperial College Business School, Imperial College London') {
+          i = i + 10;
+        }
+        if (university == 'Imperial College Business School') {
+          i = i + 10;
+        }
+        if (university == 'IITBombay') {
+          i = i + 10;
+        }
+        if (university == 'IBM') {
+          i = i + 10;
+        }
+        if (university == 'Harvard University') {
+          i = i + 10;
+        }
+        if (university == 'Hamad Bin Khalifa University') {
+          i = i + 5;
+        }
+        if (university == 'Georgetown University') {
+          i = i + 5;
+        }
+        if (university == 'Fullbridge') {
+          i = i + 7;
+        }
+        if (university == 'ETH Zurich') {
+          i = i + 10;
+        }
+        if (university == 'edX') {
+          i = i + 7;
+        }
+        if (university == 'Educational Testing Service') {
+          i = i + 7;
+        }
+        if (university == 'Doane University') {
+          i = i + 5;
+        }
+        if (university == 'Delft University of Technology, RWTH Aachen University, DelftXRWTHx') {
+          i = i + 7;
+        }
+        if (university == 'Davidson College') {
+          i = i + 10;
+        }
+        if (university == 'Cornell University, The University of Queensland, CornellX_UQx') {
+          i = i + 10;
+        }
+        if (university == 'Cornell University') {
+          i = i + 10;
+        }
+        if (university == 'Columbia University') {
+          i = i + 10;
+        }
+        if (university == 'Catalyst') {
+          i = i + 7;
+        }
+        if (university == 'Caltech') {
+          i = i + 10;
+        }
+        if (university == 'Brown University') {
+          i = i + 10;
+        }
+        if (university == 'Boston University') {
+          i = i + 10;
+        }
+        if (university == 'Babson College') {
+          i = i + 5;
+        }
+        if (university == 'Australian National University') {
+          i = i + 10;
+        }
+        if (university == 'Arizona State University') {
+          i = i + 5;
+        }
+        if (university == 'Amnesty International') {
+          i = i + 7;
+        }
+        if (university == 'Amnesty International') {
+          i = i + 7;
+        }
+        if (university == 'Amazon Web Services') {
+          i = i + 7;
+        }
+        if (university == 'AfghanX') {
+          i = i + 5;
+        }
+        if (university == 'ACCA') {
+          i = i + 7;
         }
 
-        var subcount = subb * 0.15;
+        if (tempresponse.course_runs[0].start != null) {
 
-        if (tempresponse.price != null) {
-          if (tempresponse.price[0].retail[0] >= 5000) {
-            var price = 10;
+
+
+          var d1 = new Date();
+          var dateOne = new Date(d1.getFullYear(), d1.getMonth() + 1, d1.getDate());
+          var dateTwo = tempresponse.course_runs[0].start;
+          var dt = 0;
+          if (dateOne < dateTwo) {
+            function weeksBetween(dateOne, dateTwo) {
+              return Math.round((dateTwo - dateOne) / (7 * 24 * 60 * 60 * 1000));
+            }
+            var weeks = weeksBetween(dateOne, dateTwo);
+            if (weeks <= 1) {
+              dt = dt + 10;
+            }
+            if (weeks == 2) {
+              dt = dt + 8;
+            }
+            if (weeks == 3) {
+              dt = dt + 6;
+            }
+            if (weeks == 4) {
+              dt = dt + 4;
+            }
+            if (weeks >= 5) {
+              dt = dt + 2;
+            } else {
+              dt = 10;
+            }
           }
-          if (tempresponse.price[0].retail[0] > 1000 || tempresponse.price[0].retail[0] < 5000) {
-            var price = 9;
-          }
-          if (tempresponse.price[0].retail[0] <= 1000) {
-            var price = 8;
-          }
-          if (tempresponse.price[0].retail[0] == 'Free') {
-            var price = 8;
-          }
+
         }
-
-        var pricect = price * 0.15;
-        var des = 0;
-        if (tempresponse.description[0].hasOwnProperty('long')) {
-          var str = tempresponse.description[0].long[0];
+        if (tempresponse.course_runs[0].full_description != null) {
+          var str = tempresponse.course_runs[0].full_description;
           var count = str.length;
           for (var j = 0; j < count; j++) {
 
           }
-
-          if (j >= 400) {
-            des = des + 9;
-          }
-          if (j > 100 && j < 400) {
-            var des = des + 10;
+          var des = 0;
+          if (j >= 100) {
+            des = des + 10;
           }
           if (j < 100) {
-            var des = des + 7;
+            des = des + 8;
           }
         }
-        var descrip = des * 0.15;
-        var finalSum = descrip + pricect + subcount + rat + rev;
 
-        var title = tempresponse.$.name;
-        var pricer = tempresponse.price[0].retail[0];
-        var currency = tempresponse.price[0].$.currency;
-        // var subjct = tempresponse.category[0].primary[0];
-        // var subjct2 = tempresponse.category[0].secondary[0];
-        // var subbj = "{" + subjct + "','" + subjct2 + "}";
-        var null_date = new Date(0);
-        var url = tempresponse.URL[0].product[0];
-        if (tempresponse.description[0].hasOwnProperty('long')) {
-          var descript = tempresponse.description[0].long[0];
-        } else {
-          var descript = "";
+        var desTot = des * 0.05;
+        if (tempresponse.course_runs[0].enrollment_count != null) {
+          var ec = 0;
+          if (tempresponse.course_runs[0].staff[0].enrollment_count >= 30000) {
+            ec = ec + 10;
+          }
+          if (tempresponse.course_runs[0].staff[0].enrollment_count >= 20000 && tempresponse.course_runs[0].staff[0].enrollment_count <= 30000) {
+            ec = ec + 9.5;
+          }
+          if (tempresponse.course_runs[0].staff[0].enrollment_count >= 10000 && tempresponse.course_runs[0].staff[0].enrollment_count <= 20000) {
+            ec = ec + 9;
+          }
+          if (tempresponse.course_runs[0].staff[0].enrollment_count >= 5000 && tempresponse.course_runs[0].staff[0].enrollment_count <= 10000) {
+            ec = ec + 8.5;
+          }
+          if (tempresponse.course_runs[0].staff[0].enrollment_count >= 1000 && tempresponse.course_runs[0].staff[0].enrollment_count <= 5000) {
+            ec = ec + 8;
+          }
+          if (tempresponse.course_runs[0].staff[0].enrollment_count > 1000) {
+            ec = ec + 7.5;
+          }
         }
-        // console.log(title);   
+        if (tempresponse.subjects[0].name != null) {
+
+
+          if (tempresponse.subjects[0].name == 'Business & Management') {
+            var subject = 'B';
+          }
+          if (tempresponse.subjects[0].name == 'Computer Science') {
+            var subject = 'CS';
+          }
+          if (tempresponse.subjects[0].name == 'Humanitites') {
+            var subject = 'A';
+          }
+          if (tempresponse.subjects[0].name == 'Data Analysis & Statistics') {
+            var subject = 'DA';
+          }
+          if (tempresponse.subjects[0].name == 'Language') {
+            var subject = 'SO';
+          }
+          if (tempresponse.subjects[0].name == 'Architecture') {
+            var subject = 'SENG';
+          }
+          if (tempresponse.subjects[0].name == 'Biology & Life Sciences') {
+            var subject = 'SENG';
+          }
+          if (tempresponse.subjects[0].name == 'Chemistry') {
+            var subject = 'SENG';
+          }
+          if (tempresponse.subjects[0].name == 'Communication') {
+            var subject = 'SO';
+          }
+          if (tempresponse.subjects[0].name == 'Design') {
+            var subject = 'A';
+          }
+          if (tempresponse.subjects[0].name == 'Economics & Finance') {
+            var subject = 'B';
+          }
+          if (tempresponse.subjects[0].name == 'Education & Teacher Training') {
+            var subject = 'A';
+          }
+          if (tempresponse.subjects[0].name == 'Electronics') {
+            var subject = 'SENG';
+          }
+          if (tempresponse.subjects[0].name == 'Energy & Earth Sciences') {
+            var subject = 'SO';
+          }
+          if (tempresponse.subjects[0].name == 'Engineering') {
+            var subject = 'SENG';
+          }
+          if (tempresponse.subjects[0].name == 'Environmental Studies') {
+            var subject = 'SO';
+          }
+          if (tempresponse.subjects[0].name == 'Ethics') {
+            var subject = 'SO';
+          }
+          if (tempresponse.subjects[0].name == 'Food & Nutrition') {
+            var subject = 'HL';
+          }
+          if (tempresponse.subjects[0].name == 'Health & Safety') {
+            var subject = 'HL';
+          }
+          if (tempresponse.subjects[0].name == 'History') {
+            var subject = 'SO';
+          }
+          if (tempresponse.subjects[0].name == 'Law') {
+            var subject = 'SO';
+          }
+          if (tempresponse.subjects[0].name == 'Literature') {
+            var subject = 'A';
+          }
+          if (tempresponse.subjects[0].name == 'Math') {
+            var subject = 'M';
+          }
+          if (tempresponse.subjects[0].name == 'Medicine') {
+            var subject = 'HL';
+          }
+          if (tempresponse.subjects[0].name == 'Music') {
+            var subject = 'A';
+          }
+          if (tempresponse.subjects[0].name == 'Philanthropy') {
+            var subject = 'O';
+          }
+          if (tempresponse.subjects[0].name == 'Philosophy & Ethics') {
+            var subject = 'O';
+          }
+          if (tempresponse.subjects[0].name == 'Physics') {
+            var subject = 'SENG';
+          }
+          if (tempresponse.subjects[0].name == 'Science') {
+            var subject = 'SENG';
+          }
+          if (tempresponse.subjects[0].name == 'Social Sciences') {
+            var subject = 'SO';
+          }
+
+
+
+          var sub = 0;
+          if (subject == 'CS' || subject == 'B' || subject == 'DEV' || subject == 'DA') {
+            var sub = sub + 10;
+          }
+          if (subject == 'SENG' || subject == 'M') {
+            var sub = sub + 7;
+          }
+          if (subject == 'SO' || subject == 'O' || subject == 'HL' || subject == 'A') {
+            var sub = sub + 5;
+          }
+        }
+
+
+        if (tempresponse.course_runs[0].seats[0].price != null) {
+          var pp = 0;
+          if (tempresponse.course_runs[0].seats[0].price >= 10000) {
+            pp = +10;
+          }
+          if (tempresponse.course_runs[0].seats[0].price >= 5000 && tempresponse.course_runs[0].seats[0].price < 10000) {
+            pp = pp + 9;
+          }
+          if (tempresponse.course_runs[0].seats[0].price <= 5000) {
+            pp = pp + 8;
+          }
+          if (tempresponse.course_runs[0].seats[0].price == 'free') {
+            pp = pp + 8;
+          }
+        }
+
+
+        if (tempresponse.course_runs[0].title != null) {
+          var run = 0;
+          var keyCount = Object.keys(tempresponse.course_runs).length;
+          if (keyCount >= 2) {
+            run = run + 10;
+          } else {
+            run = run + 8;
+          }
+        }
+
+        var runTot = run * 0.15;
+        var priTot = pp * 0.15;
+        var subTot = sub * 0.10;
+        var enrTot = ec * 0.20;
+        var dateTot = dt * 0.20;
+        var ownTot = i * 0.15;
+        var total = runTot + priTot + subTot + enrTot + desTot + dateTot + ownTot;
+
+
+
+        var courseTitleEdx = tempresponse.title;
+        var uuidEdx = tempresponse.course_runs[0].uuid;
+        var startDateEdx = tempresponse.course_runs[0].start;
+        var priceEdx = tempresponse.course_runs[0].seats[0].price;
+        var currencyEdx = tempresponse.course_runs[0].seats[0].currency;
+        var subjectEdx = "{" + tempresponse.subjects[0].name + "}";
+        var universityEdx = university;
+        if (tempresponse.owners[0].certificate_logo_image_url != null) {
+          var certificate = true;
+        } else {
+          var certificate = false;
+        }
+        var urlEdx = tempresponse.course_runs[0].marketing_url;
+        var instructorsEdx = "{" + tempresponse.course_runs[0].staff[0].given_name + "}";
+
 
         function create_UUID() {
           var dt = new Date().getTime();
@@ -2627,66 +3092,50 @@ router.get("/api/udemyFeeds", async (req, res) => {
           return uuid;
         }
 
+        console.log(create_UUID());
 
-        ++i;
+        console.log("run run");
+        let query = db.table('data')
+          .insert({
+            title: courseTitleEdx,
+            start_date: startDateEdx,
+            price: priceEdx,
+            uuid: create_UUID(),
+            price_currency: currencyEdx,
+            subjects: subjectEdx,
+            provider: "edx",
+            university: universityEdx,
+            rank: 1,
+            ranking_points: total,
+            has_paid_certificates: certificate,
+            url: urlEdx,
+            instructors: instructorsEdx,
+            description: tempresponse.course_runs[0].full_description
+          })
 
-        const dataModel =  db.table('data').where({
-          title: title,
-          provider: 'Udemy'
-        })
-        .then(function(rows) {
-          if (rows.length===0) {
-            // no matching records found
-            console.log('true');
-          } else {
-            // return or throw - duplicate name found
-            console.log('false');
-          }
-        })
-        
-        // const data = dataModel;
-        // // console.log('title',data);
-        // const totalCount = data.count();
-        // console.log(totalCount);   
-        // res.send({
-        //   data
-        // });
-        // const response = db.select('*')
-        // .where('title', '=', title)
-        //     .get('data');
-        //     console.log('response', response);
-        // setTimeout(function () {
-        // let query = db.table('data')
-        //   .insert({
-        //     title: title,
-        //     start_date: null,
-        //     price: pricer,
-        //     uuid: create_UUID(),
-        //     price_currency: currency,
-        //     subjects: subbj,
-        //     provider: "Udemy",
-        //     university: "",
-        //     rank: "1",
-        //     ranking_points: finalSum,
-        //     has_paid_certificates: false,
-        //     url: url,
-        //     instructors: {},
-        //     description: descript
-        //   }).then((index) => {
-        //     console.log('Added Successfully');
-        //   })
-        //   .catch(console.error);
-        // console.log(query);
-        // console.log(++i);
-        // },25000);
+          .then((index) => {
+            console.log('Added Successfully');
+          })
+          .catch(console.error);
+
+
       });
-    });
+
+    }
+    console.log(i);
+
+    return res.status(200).json(courses).end();
+
+
   } catch (e) {
     console.log(e);
-    res.send({
-      error: e
-    });
+    return res.status(500).json(e.toString()).end();
   }
+
 });
+
+
+
+
 
 export default router;
