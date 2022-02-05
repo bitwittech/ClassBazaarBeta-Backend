@@ -437,7 +437,7 @@ router.get('/api/bookmarks/', async (req, res) => {
 });
 
 router.get('/api/course/', async (req, res) => {
-  console.log(req.query);
+  console.log("Yashwant");
 
   let provider = req.query.provider;
   let uuid = req.query.uuid;
@@ -480,79 +480,17 @@ router.get('/api/course/', async (req, res) => {
       .then((course) => course);
   }
 
-  console.log(summaryData);
+  
+  // converting the price into INR
+  
+  let  url = `https://freecurrencyapi.net/api/v2/latest?apikey=45f68830-84f3-11ec-8258-811245eebca2&base_currency=${summaryData.price_currency}`;
+  
+  await axios.get(url).then((response)=>{
+    summaryData.price *= response.data.data.INR;
+  })
+  
+  console.log("======",summaryData);
 
-  let CLIENT, mongoDBURL, dbName, collectionName, key;
-  CLIENT = mongoClient;
-  if (provider === 'Coursera') {
-    dbName = 'heroku_b5kg98fc';
-    collectionName = 'coursera';
-    key = '_id';
-    uuid = new ObjectId(uuid);
-  } else if (provider === 'edX') {
-    console.log('EDX found');
-    dbName = 'classbazaar';
-    collectionName = 'edx';
-    key = 'uuid';
-  } else if (provider === 'FutureLearn') {
-    dbName = 'classbazaar';
-    collectionName = 'futureLearn';
-    key = 'uuid';
-  } else if (provider === 'SimpliLearn') {
-    dbName = 'heroku_glmmwlk5';
-    collectionName = 'simplilearn';
-    key = '_id';
-    uuid = new ObjectId(uuid);
-  } else if (provider === 'upGrad') {
-    dbName = 'heroku_h05wbcsj';
-    collectionName = 'upgrad';
-    key = '_id';
-    uuid = new ObjectId(uuid);
-  } else if (provider === 'Udacity') {
-    dbName = 'heroku_glmmwlk5';
-    collectionName = 'udacity';
-    key = '_id';
-    uuid = new ObjectId(uuid);
-  } else if (provider === 'Udemy') {
-    dbName = 'classbazaar';
-    collectionName = 'udemy';
-    key = 'title';
-    uuid = summaryData.title;
-  } else if (provider === 'Swayam') {
-    dbName = 'classbazaar';
-    collectionName = 'swayam';
-    key = '_id';
-    uuid = new ObjectId(uuid);
-  } else {
-    res.send({
-      data: []
-    });
-  }
-
-  console.log({
-    key
-  });
-  var query = {};
-  query[key] = uuid;
-  console.log({
-    CLIENT,
-    mongoClient
-  });
-  try {
-    const RESD = await CLIENT.db(dbName)
-      .collection(collectionName)
-      .findOne(query);
-    res.send({
-      data: RESD,
-      summaryData
-    });
-  } catch (error) {
-    console.log(error);
-    res.send({
-      data: [],
-      summaryData
-    });
-  }
   res.send({
     summaryData
   });
