@@ -536,6 +536,8 @@ router.get('/api/course/', async (req, res) => {
     summaryData.price *= response.data.data.INR;
   })
   
+  // here we update the internal tracker
+  tracker(summaryData.title);
   console.log("======",summaryData);
 
   res.send({
