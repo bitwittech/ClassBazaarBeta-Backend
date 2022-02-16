@@ -436,6 +436,53 @@ router.get('/api/bookmarks/', async (req, res) => {
   });
 });
 
+// function created by yashwant sahu for the internal tracking purpouses (Yashwant Sahu)
+
+async function tracker(title,updateEn = false){
+  
+  let data = await db
+      .table('trackRecord')
+      .where({
+        title
+      })
+      .first()
+      .then(async(resData) => {
+
+        if(resData !== undefined)
+        {
+          console.log(resData.card_click);
+          if(updateEn === true)
+          {
+            let done = await db.table('trackRecord').where('title','=',title)
+            .update({
+              eroll_now_click :resData.eroll_now_click +1
+            })
+          }
+          else{
+            let done = await db.table('trackRecord').where('title','=',title)
+            .update({
+              card_click: resData.card_click+1
+            })
+          }
+          
+      }
+      else{
+          let done = await db.table('trackRecord').insert([{title,card_click : 1}])
+          // console.log("++++++",done);
+        }
+      });
+  
+
+}
+
+// route for tracking
+
+router.get('/api/track', async (req, res) => {
+  
+  await tracker(req.query.title,true);
+  res.send('All Okay');
+})
+
 router.get('/api/course/', async (req, res) => {
   console.log("Yashwant");
 
