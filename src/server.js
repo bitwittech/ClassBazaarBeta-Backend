@@ -14,10 +14,37 @@ import errors from './errors';
 import { mainConnect } from './mongoclient';
 import redis from './redis';
 
+
 const port = process.env.PORT || 8080;
 const host = process.env.HOSTNAME || '0.0.0.0';
 
-//Connect to all the mongoDB
+// shedular by Yashwant Sahu Added 
+
+const axios = require('axios');
+const cron = require('node-cron');
+
+
+
+// 0 0 * * * Time for 1 day at the 12pm reupdation
+
+cron.schedule('0 0 * * *', async() => {
+  console.log('Schedular Running');
+
+  let response = await axios.get('http://0.0.0.0:8080/api/getFeedsFutureLearn');
+
+  if(response.status == 200)
+  {
+    response = await axios.get('http://0.0.0.0:8080/api/getEdx');
+    if(response.status == 200)
+    {
+      console.log('Done')
+    }
+  }
+});
+
+
+
+// Connect to all the mongoDB
 mainConnect()
   .then(() => {
     console.log('MONGO CLIENTS CONNECTED');
