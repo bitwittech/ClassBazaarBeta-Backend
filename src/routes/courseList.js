@@ -878,6 +878,7 @@ router.post('/api/eduMarkUpdated', (req, res) => {
 });
 
 router.post('/api/newregistration', (req, res) => {
+  console.log("Data Updating ",req.body)
   const {
     userid,
     name,
@@ -889,6 +890,7 @@ router.post('/api/newregistration', (req, res) => {
     mobile_no,
     password
   } = req.body;
+
   db.table('newregistration')
     .insert({
       userid,
@@ -900,7 +902,8 @@ router.post('/api/newregistration', (req, res) => {
       city,
       mobile_no,
       password
-    })
+    }).onConflict('email_address')
+    .merge()
     .then((data) => {
       res.status(200).send({
         status: 'User Added successfully',
@@ -1057,6 +1060,7 @@ function parseQueryString(req) {
 }
 
 router.post('/api/newLoginDetails', (req, res) => {
+  console.log("New Login Occure",req.body.email)
   db
     .table('newregistration')
     .where('email_address', '=', req.body.email)
@@ -1075,7 +1079,7 @@ router.get('/api/newLogin', (req, res) => {
       res.send({
         data: user
       });
-    });
+    }).catch((err)=>res.send(err));
 });
 
 
@@ -1088,6 +1092,7 @@ router.get("/api/univer", async (req, res) => {
 
 
 })
+
 
 // Fetching the Future Learn Courses ++++++++++++++++++++++++++++++++++
 // ++++++++++=======================
@@ -2200,6 +2205,14 @@ xml2js.parseString(xml, (err, result) => {
             var des=des+7;
          }
          }
+
+// UniverSity
+         var UniverRank = 0;
+        
+         if(CourseraUniversityList[tempresponse['$'].manufacturer_name] === undefined)
+           UniverRank = 5 * 0.15;
+         else
+           UniverRank = CourseraUniversityList[tempresponse['$'].manufacturer_name] * 0.15;
 
          function create_UUID() {
           var dt = new Date().getTime();
