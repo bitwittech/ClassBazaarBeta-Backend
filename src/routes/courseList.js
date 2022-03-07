@@ -877,45 +877,42 @@ router.post('/api/eduMarkUpdated', (req, res) => {
     });
 });
 
-// router.post('/api/newregistration', (req, res) => {
-//   console.log("Data Updating ",req.body)
-//   const {
-//     userid,
-//     name,
-//     gender,
-//     email_address,
-//     school_or_college_name,
-//     class_year,
-//     city,
-//     mobile_no,
-//     password
-//   } = req.body;
-
-//   db.table('newregistration')
-//     .insert({
-//       userid,
-//       name,
-//       gender,
-//       email_address,
-//       school_or_college_name,
-//       class_year,
-//       city,
-//       mobile_no,
-//       password
-//     }).onConflict('email_address')
-//     .merge()
-//     .then((data) => {
-//       res.status(200).send({
-//         status: 'User Added successfully',
-//       });
-//     })
-//     .catch((e) => {
-//       console.log('ERROR', e);
-//       res.status(500).send({
-//         status: 'Error'
-//       });
-//     });
-// });
+router.post('/api/newregistration', (req, res) => {
+  const {
+    userid,
+    name,
+    gender,
+    email_address,
+    school_or_college_name,
+    class_year,
+    city,
+    mobile_no,
+    password
+  } = req.body;
+  db.table('newregistration')
+    .insert({
+      userid,
+      name,
+      gender,
+      email_address,
+      school_or_college_name,
+      class_year,
+      city,
+      mobile_no,
+      password
+    })
+    .then((data) => {
+      res.status(200).send({
+        status: 'User Added successfully',
+      });
+    })
+    .catch((e) => {
+      console.log('ERROR', e);
+      res.status(500).send({
+        status: 'Error'
+      });
+    });
+});
 
 router.post('/api/edxresult', (req, res) => {
   const {
