@@ -878,6 +878,7 @@ router.post('/api/eduMarkUpdated', (req, res) => {
 });
 
 router.post('/api/newregistration', (req, res) => {
+  console.log("Data Updating ",req.body)
   const {
     userid,
     name,
@@ -889,6 +890,7 @@ router.post('/api/newregistration', (req, res) => {
     mobile_no,
     password
   } = req.body;
+
   db.table('newregistration')
     .insert({
       userid,
@@ -900,7 +902,8 @@ router.post('/api/newregistration', (req, res) => {
       city,
       mobile_no,
       password
-    })
+    }).onConflict('email_address')
+    .merge()
     .then((data) => {
       res.status(200).send({
         status: 'User Added successfully',
