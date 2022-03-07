@@ -1,8 +1,8 @@
-const pgp = require("pg-promise")({
-  capSQL: true // generate capitalized SQL 
-});
+// const pgp = require("pg-promise")({
+//   capSQL: true // generate capitalized SQL 
+// });
 
-const xml2js = require('xml2js');
+// const xml2js = require('xml2js');
 
 // const cron = require('node-cron');
 
