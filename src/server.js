@@ -21,7 +21,7 @@ const host = process.env.HOSTNAME || '0.0.0.0';
 // shedular by Yashwant Sahu Added 
 
 const axios = require('axios');
-const cron = require('node-cron');
+// const cron = require('node-cron');
 
 
 
