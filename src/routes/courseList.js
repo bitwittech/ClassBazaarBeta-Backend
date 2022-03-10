@@ -2,7 +2,7 @@ const pgp = require("pg-promise")({
   capSQL: true // generate capitalized SQL 
 });
 
-const xml2js = require('xml2js');
+// const xml2js = require('xml2js');
 
 // const cron = require('node-cron');
 
@@ -1774,253 +1774,253 @@ router.post('/api/getFeedsList', async (req, res) => {
 // Get the Udemy Courses ===============================================
 //=======================================================================
 
-router.get('/api/getUdemy',async (req,res)=>{
+// router.get('/api/getUdemy',async (req,res)=>{
 
-  console.log("Let's Goo for Udemy !!!")
+//   console.log("Let's Goo for Udemy !!!")
   
-  var xml = require('fs').readFileSync('routes/data/udemy.xml', 'utf8');
+//   var xml = require('fs').readFileSync('routes/data/udemy.xml', 'utf8');
   
-  try {
-    xml2js.parseString(xml, (err, result) => {
-      console.log("Parsing Complete !!!",result)
-      if (err) {
-        throw err;
-      }
-      var i = 0;
-      Promise.all(result.merchandiser.product.map(async (tempresponse) => {
+//   try {
+//     xml2js.parseString(xml, (err, result) => {
+//       console.log("Parsing Complete !!!",result)
+//       if (err) {
+//         throw err;
+//       }
+//       var i = 0;
+//       Promise.all(result.merchandiser.product.map(async (tempresponse) => {
 
-        if (tempresponse.m1 != null) {
-          var rating = tempresponse.m1.toString();
-          // console.log(typeof rating);
-          var rate = rating.split("~~");
-          // console.log(rate);
-          var ratee = rate.toString();
-          var splitrating = ratee.split(">>");
-          var split = splitrating.toString();
-          var ra = split.split(",");
+//         if (tempresponse.m1 != null) {
+//           var rating = tempresponse.m1.toString();
+//           // console.log(typeof rating);
+//           var rate = rating.split("~~");
+//           // console.log(rate);
+//           var ratee = rate.toString();
+//           var splitrating = ratee.split(">>");
+//           var split = splitrating.toString();
+//           var ra = split.split(",");
 
-          if (ra[1] >= 4.5) {
-            var finalrating = 10;
-          }
-          if (ra[1] >= 4.0 || ra[1] < 4.5) {
-            var finalrating = 9;
-          }
-          if (ra[1] >= 3.5 || ra[1] < 4.0) {
-            var finalrating = 8;
-          }
-          if (ra[1] <= 3.5) {
-            var finalrating = 6;
-          }
+//           if (ra[1] >= 4.5) {
+//             var finalrating = 10;
+//           }
+//           if (ra[1] >= 4.0 || ra[1] < 4.5) {
+//             var finalrating = 9;
+//           }
+//           if (ra[1] >= 3.5 || ra[1] < 4.0) {
+//             var finalrating = 8;
+//           }
+//           if (ra[1] <= 3.5) {
+//             var finalrating = 6;
+//           }
 
-          if (ra[5] >= 1000) {
-            var review = 10;
-          }
-          if (ra[5] < 1000) {
-            var review = 8;
-          }
-        }
-        var rat = finalrating * 0.30;
-        var rev = review * 0.25;
-        let CBSubject;
-        if (tempresponse.category != null) {
-          var course = tempresponse.category;
-          if (course[0].primary[0] == 'Business') {
-            var subject = 'B';
-            CBSubject = "Business"
-          }
-          if (course[0].primary[0] == 'Design') {
-            var subject = 'A';
-            CBSubject = "Arts & Design"
-          }
-          if (course[0].primary[0] == 'Development') {
-            var subject = 'DEV';
-            CBSubject = "Developers/Programming"
-          }
-          if (course[0].primary[0] == 'Health & Fitness') {
-            var subject = 'HL';
-            CBSubject = "Health & Lifestyle"
-          }
-          if (course[0].primary[0] == 'It & Software') {
-            var subject = 'CS + DEV';
-            CBSubject = "Computer Science"
-          }
-          if (course[0].primary[0] == 'Lifestyle') {
-            var subject = 'HL';
-            CBSubject = "Health & Lifestyle"
-          }
-          if (course[0].primary[0] == 'Marketing') {
-            var subject = 'B';
-            CBSubject = "Business"
-          }
-          if (course[0].primary[0] == 'Music') {
-            var subject = 'A';
-            CBSubject = "Arts & Design"
-          }
-          if (course[0].primary[0] == 'Office Productivity') {
-            var subject = 'O';
-            CBSubject = "Health & Lifestyle"
-          }
-          if (course[0].primary[0] == 'Personal Development') {
-            var subject = 'O';
-            CBSubject = "Health & Lifestyle"
-          }
-          if (course[0].primary[0] == 'Photography') {
-            var subject = 'A';
-            CBSubject = "Others"
-          }
-          if (course[0].primary[0] == 'Teaching & Academics') {
-            var subject = 'A';
-            CBSubject = "Social Studies"
-          }
-
-
-          // var subb = 0;
-          if (subject == 'CS' || subject == 'B' || subject == 'DEV' || subject == 'DA') {
-            var subb = 10;
-          }
-          if (subject == 'SENG' || subject == 'M') {
-            var subb = 7;
-          }
-          if (subject == 'SO' || subject == 'O' || subject == 'HL' || subject == 'A') {
-            var subb = 5;
-          }
-        }
-
-        var subcount = subb * 0.15;
-
-        if (tempresponse.price != null) {
-          if (tempresponse.price[0].retail[0] >= 5000) {
-            var price = 10;
-          }
-          if (tempresponse.price[0].retail[0] > 1000 || tempresponse.price[0].retail[0] < 5000) {
-            var price = 9;
-          }
-          if (tempresponse.price[0].retail[0] <= 1000) {
-            var price = 8;
-          }
-          if (tempresponse.price[0].retail[0] == 'Free') {
-            var price = 8;
-          }
-        }
-
-        var pricect = price * 0.15;
-        var des = 0;
-        if (tempresponse.description[0].hasOwnProperty('long')) {
-          var str = tempresponse.description[0].long[0];
-          var count = str.length;
-          for (var j = 0; j < count; j++) {
-
-          }
-
-          if (j >= 400) {
-            des = des + 9;
-          }
-          if (j > 100 && j < 400) {
-            var des = des + 10;
-          }
-          if (j < 100) {
-            var des = des + 7;
-          }
-        }
-        var descrip = des * 0.15;
-        var finalSum = descrip + pricect + subcount + rat + rev;
-
-        var title = tempresponse.$.name;
-        let unique_id = tempresponse.$.sku_number;
-
-        var pricer = tempresponse.price[0].retail[0];
-        var currency = tempresponse.price[0].$.currency;
-        var subjct = tempresponse.category[0].primary[0];
-        var subjct2 = tempresponse.category[0].secondary[0];
-        var subbj = `{"${subjct}","${subjct2}","${CBSubject}"}`;
-        var null_date = new Date(0);
-        var url = `https://click.linksynergy.com/deeplink?id=aEDzMt9EP*4&mid=39197&murl=${tempresponse.URL[0].product[0]}`;
-        if (tempresponse.description[0].hasOwnProperty('long')) {
-          var descript = tempresponse.description[0].long[0];
-        } else {
-          var descript = "";
-        }
-        // console.log(subbj);   
-
-        function create_UUID() {
-          var dt = new Date().getTime();
-          var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (dt + Math.random() * 16) % 16 | 0;
-            dt = Math.floor(dt / 16);
-            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-          });
-          return uuid;
-        }
+//           if (ra[5] >= 1000) {
+//             var review = 10;
+//           }
+//           if (ra[5] < 1000) {
+//             var review = 8;
+//           }
+//         }
+//         var rat = finalrating * 0.30;
+//         var rev = review * 0.25;
+//         let CBSubject;
+//         if (tempresponse.category != null) {
+//           var course = tempresponse.category;
+//           if (course[0].primary[0] == 'Business') {
+//             var subject = 'B';
+//             CBSubject = "Business"
+//           }
+//           if (course[0].primary[0] == 'Design') {
+//             var subject = 'A';
+//             CBSubject = "Arts & Design"
+//           }
+//           if (course[0].primary[0] == 'Development') {
+//             var subject = 'DEV';
+//             CBSubject = "Developers/Programming"
+//           }
+//           if (course[0].primary[0] == 'Health & Fitness') {
+//             var subject = 'HL';
+//             CBSubject = "Health & Lifestyle"
+//           }
+//           if (course[0].primary[0] == 'It & Software') {
+//             var subject = 'CS + DEV';
+//             CBSubject = "Computer Science"
+//           }
+//           if (course[0].primary[0] == 'Lifestyle') {
+//             var subject = 'HL';
+//             CBSubject = "Health & Lifestyle"
+//           }
+//           if (course[0].primary[0] == 'Marketing') {
+//             var subject = 'B';
+//             CBSubject = "Business"
+//           }
+//           if (course[0].primary[0] == 'Music') {
+//             var subject = 'A';
+//             CBSubject = "Arts & Design"
+//           }
+//           if (course[0].primary[0] == 'Office Productivity') {
+//             var subject = 'O';
+//             CBSubject = "Health & Lifestyle"
+//           }
+//           if (course[0].primary[0] == 'Personal Development') {
+//             var subject = 'O';
+//             CBSubject = "Health & Lifestyle"
+//           }
+//           if (course[0].primary[0] == 'Photography') {
+//             var subject = 'A';
+//             CBSubject = "Others"
+//           }
+//           if (course[0].primary[0] == 'Teaching & Academics') {
+//             var subject = 'A';
+//             CBSubject = "Social Studies"
+//           }
 
 
-        ++i;
+//           // var subb = 0;
+//           if (subject == 'CS' || subject == 'B' || subject == 'DEV' || subject == 'DA') {
+//             var subb = 10;
+//           }
+//           if (subject == 'SENG' || subject == 'M') {
+//             var subb = 7;
+//           }
+//           if (subject == 'SO' || subject == 'O' || subject == 'HL' || subject == 'A') {
+//             var subb = 5;
+//           }
+//         }
+
+//         var subcount = subb * 0.15;
+
+//         if (tempresponse.price != null) {
+//           if (tempresponse.price[0].retail[0] >= 5000) {
+//             var price = 10;
+//           }
+//           if (tempresponse.price[0].retail[0] > 1000 || tempresponse.price[0].retail[0] < 5000) {
+//             var price = 9;
+//           }
+//           if (tempresponse.price[0].retail[0] <= 1000) {
+//             var price = 8;
+//           }
+//           if (tempresponse.price[0].retail[0] == 'Free') {
+//             var price = 8;
+//           }
+//         }
+
+//         var pricect = price * 0.15;
+//         var des = 0;
+//         if (tempresponse.description[0].hasOwnProperty('long')) {
+//           var str = tempresponse.description[0].long[0];
+//           var count = str.length;
+//           for (var j = 0; j < count; j++) {
+
+//           }
+
+//           if (j >= 400) {
+//             des = des + 9;
+//           }
+//           if (j > 100 && j < 400) {
+//             var des = des + 10;
+//           }
+//           if (j < 100) {
+//             var des = des + 7;
+//           }
+//         }
+//         var descrip = des * 0.15;
+//         var finalSum = descrip + pricect + subcount + rat + rev;
+
+//         var title = tempresponse.$.name;
+//         let unique_id = tempresponse.$.sku_number;
+
+//         var pricer = tempresponse.price[0].retail[0];
+//         var currency = tempresponse.price[0].$.currency;
+//         var subjct = tempresponse.category[0].primary[0];
+//         var subjct2 = tempresponse.category[0].secondary[0];
+//         var subbj = `{"${subjct}","${subjct2}","${CBSubject}"}`;
+//         var null_date = new Date(0);
+//         var url = `https://click.linksynergy.com/deeplink?id=aEDzMt9EP*4&mid=39197&murl=${tempresponse.URL[0].product[0]}`;
+//         if (tempresponse.description[0].hasOwnProperty('long')) {
+//           var descript = tempresponse.description[0].long[0];
+//         } else {
+//           var descript = "";
+//         }
+//         // console.log(subbj);   
+
+//         function create_UUID() {
+//           var dt = new Date().getTime();
+//           var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+//             var r = (dt + Math.random() * 16) % 16 | 0;
+//             dt = Math.floor(dt / 16);
+//             return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+//           });
+//           return uuid;
+//         }
 
 
-         // our set of columns, to be created only once (statically), and then reused,
-    // to let it cache up its formatting templates for high performance:
-    const cs = new pgp.helpers.ColumnSet(['title',
-    'start_date',
-    'price',
-    'uuid',
-    'price_currency',
-    'subjects',
-    'provider',
-    'university',
-    'rank',
-    'ranking_points',
-    'has_paid_certificates',
-    'url',
-    'instructors',
-    'description',
-    'unique_id' ], {table: 'data'});
+//         ++i;
+
+
+//          // our set of columns, to be created only once (statically), and then reused,
+//     // to let it cache up its formatting templates for high performance:
+//     const cs = new pgp.helpers.ColumnSet(['title',
+//     'start_date',
+//     'price',
+//     'uuid',
+//     'price_currency',
+//     'subjects',
+//     'provider',
+//     'university',
+//     'rank',
+//     'ranking_points',
+//     'has_paid_certificates',
+//     'url',
+//     'instructors',
+//     'description',
+//     'unique_id' ], {table: 'data'});
       
-  // data input values:
-  const values = [{
-    title: title,
-    start_date: null,
-    price: pricer,
-    uuid: create_UUID(),
-    price_currency: currency,
-    subjects: subbj,
-    provider: "Udemy",
-    university: "",
-    rank: "1",
-    ranking_points: finalSum,
-    has_paid_certificates: false,
-    url: url,
-    instructors: {},
-    description: descript,
-    unique_id :unique_id
+//   // data input values:
+//   const values = [{
+//     title: title,
+//     start_date: null,
+//     price: pricer,
+//     uuid: create_UUID(),
+//     price_currency: currency,
+//     subjects: subbj,
+//     provider: "Udemy",
+//     university: "",
+//     rank: "1",
+//     ranking_points: finalSum,
+//     has_paid_certificates: false,
+//     url: url,
+//     instructors: {},
+//     description: descript,
+//     unique_id :unique_id
     
-  }];
+//   }];
       
-  // generating a multi-row insert query:
-  const query = pgp.helpers.insert(values, cs);
+//   // generating a multi-row insert query:
+//   const query = pgp.helpers.insert(values, cs);
   
-  // executing the query:
-  await DB.none(query).then(()=>{
-    console.log(query)
-    console.log("Data Added")
-  }).catch(()=>{
-    console.log("Not Added")
-  });
+//   // executing the query:
+//   await DB.none(query).then(()=>{
+//     console.log(query)
+//     console.log("Data Added")
+//   }).catch(()=>{
+//     console.log("Not Added")
+//   });
 
-      // map ends here
-      })).then(()=>{
-       return res.send("Udemy Done")
-      });
-    //xml ends here
-    });
-  //try ends here
+//       // map ends here
+//       })).then(()=>{
+//        return res.send("Udemy Done")
+//       });
+//     //xml ends here
+//     });
+//   //try ends here
 
-  } catch (e) {
-    console.log(e);
-    res.send({
-      error: e
-    });
-  }
-//route eds here 
-})
+//   } catch (e) {
+//     console.log(e);
+//     res.send({
+//       error: e
+//     });
+//   }
+// //route eds here 
+// })
 
 // Coursera Started
 
@@ -2032,297 +2032,297 @@ router.get('/api/getUdemy',async (req,res)=>{
 //   console.log(UniversityList["Saint Petersburg State University"])
 //  res.send("done");
 // } )
-const cheerio = require("cheerio");
+// const cheerio = require("cheerio");
 
 
-router.get('/api/getCousera', async (req, res) => {
+// router.get('/api/getCousera', async (req, res) => {
 
-console.log("Let's Fetch The the Coursera !!!");
+// console.log("Let's Fetch The the Coursera !!!");
 
-var xml = require('fs').readFileSync('routes/data/coursera.xml', 'utf8');
-var unique = [];
+// var xml = require('fs').readFileSync('routes/data/coursera.xml', 'utf8');
+// var unique = [];
 
 
-xml2js.parseString(xml, (err, result) => {
+// xml2js.parseString(xml, (err, result) => {
 
-  // console.log(result)
+//   // console.log(result)
 
-    if(err) {
-        throw err;
-    }
-    // console.log("++++++++++++++",result)
-    var i = 0;
+//     if(err) {
+//         throw err;
+//     }
+//     // console.log("++++++++++++++",result)
+//     var i = 0;
 
     
 
 
-    Promise.all(result.merchandiser.product.map(async(tempresponse)=>{  
+//     Promise.all(result.merchandiser.product.map(async(tempresponse)=>{  
 
 
-// Now the Coursera Apis is not providing us the rating part so we are using the Avaliblity for final rating done 
+// // Now the Coursera Apis is not providing us the rating part so we are using the Avaliblity for final rating done 
 
-//                               ++++++++++++++++++++++++++++++++++++++++++++
+// //                               ++++++++++++++++++++++++++++++++++++++++++++
 
-    //     if(tempresponse.m1 != null){
+//     //     if(tempresponse.m1 != null){
 
-    //     // var rating = tempresponse.m1.toString();
+//     //     // var rating = tempresponse.m1.toString();
 
-    //     console.log("rating === ",rating);
+//     //     console.log("rating === ",rating);
         
-    //     var rate = rating.split("~~");
-    //     // console.log(rate);
-    //     var ratee = rate.toString();
-    //     var splitrating = ratee.split(">>");
-    //     var split = splitrating.toString();
-    //     var ra = split.split(",");
+//     //     var rate = rating.split("~~");
+//     //     // console.log(rate);
+//     //     var ratee = rate.toString();
+//     //     var splitrating = ratee.split(">>");
+//     //     var split = splitrating.toString();
+//     //     var ra = split.split(",");
 
-    //     var finalrating = 0;
-    //     var review = 0;
+//     //     var finalrating = 0;
+//     //     var review = 0;
 
-    //     if(ra[1] >= 4.5){
-    //         finalrating = 10;
-    //     }
-    //     if(ra[1] >= 4.0 || ra[1] < 4.5){
-    //         finalrating = 9;
-    //     }
-    //     if(ra[1] >= 3.5 || ra[1] < 4.0){
-    //        finalrating = 8;
-    //     }
-    //     if(ra[1] <= 3.5){
-    //         finalrating = 6;
-    //     }
+//     //     if(ra[1] >= 4.5){
+//     //         finalrating = 10;
+//     //     }
+//     //     if(ra[1] >= 4.0 || ra[1] < 4.5){
+//     //         finalrating = 9;
+//     //     }
+//     //     if(ra[1] >= 3.5 || ra[1] < 4.0){
+//     //        finalrating = 8;
+//     //     }
+//     //     if(ra[1] <= 3.5){
+//     //         finalrating = 6;
+//     //     }
 
-    //     if(ra[5] >= 1000){
-    //         review = 10;
-    //     }
-    //     if(ra[5] < 1000){
-    //         review = 8;
-    //     }
-    // }
-    //     var rat = finalrating * 0.30;
+//     //     if(ra[5] >= 1000){
+//     //         review = 10;
+//     //     }
+//     //     if(ra[5] < 1000){
+//     //         review = 8;
+//     //     }
+//     // }
+//     //     var rat = finalrating * 0.30;
 
-    //     var rev = review * 0.25;
+//     //     var rev = review * 0.25;
 
-// replaced parameter of rating and review 
-    var availability;
+// // replaced parameter of rating and review 
+//     var availability;
 
-    if(tempresponse.shipping[0].availability[0] == "in-stock")
-    {
-      availability = 15
-    }
-    else 
-    {
-      availability = 0;
-    }
+//     if(tempresponse.shipping[0].availability[0] == "in-stock")
+//     {
+//       availability = 15
+//     }
+//     else 
+//     {
+//       availability = 0;
+//     }
 
 
         
    
-        var subject = '';
+//         var subject = '';
 
-        if(tempresponse.category != null){
-            var course = tempresponse.category;
-            if(course[0].primary[0] == 'Business'){
-                subject = 'B';
-            }if(course[0].primary[0] == 'Design'){
-                subject = 'A';
-            }
-            if(course[0].primary[0] == 'Development'){
-                subject = 'DEV';
-            }if(course[0].primary[0] == 'Health & Fitness'){
-                subject = 'HL';
-            }
-            // modified by Yashwant Sahu
-            if(course[0].primary[0] == 'Software'){
-                subject = 'CS + DEV';
-            }if(course[0].primary[0] == 'Lifestyle'){
-                subject = 'HL';
-            }if(course[0].primary[0] == 'Marketing'){
-                subject = 'B';
-            }if(course[0].primary[0] == 'Music'){
-                subject = 'A';
-            }if(course[0].primary[0] == 'Office Productivity'){
-                subject = 'O';
-            }if(course[0].primary[0] == 'Personal Development'){
-                subject = 'O';
-            }if(course[0].primary[0] == 'Photography'){
-                subject = 'A';
-            }if(course[0].primary[0] == 'Teaching & Academics'){
-                subject = 'A';
-            }
+//         if(tempresponse.category != null){
+//             var course = tempresponse.category;
+//             if(course[0].primary[0] == 'Business'){
+//                 subject = 'B';
+//             }if(course[0].primary[0] == 'Design'){
+//                 subject = 'A';
+//             }
+//             if(course[0].primary[0] == 'Development'){
+//                 subject = 'DEV';
+//             }if(course[0].primary[0] == 'Health & Fitness'){
+//                 subject = 'HL';
+//             }
+//             // modified by Yashwant Sahu
+//             if(course[0].primary[0] == 'Software'){
+//                 subject = 'CS + DEV';
+//             }if(course[0].primary[0] == 'Lifestyle'){
+//                 subject = 'HL';
+//             }if(course[0].primary[0] == 'Marketing'){
+//                 subject = 'B';
+//             }if(course[0].primary[0] == 'Music'){
+//                 subject = 'A';
+//             }if(course[0].primary[0] == 'Office Productivity'){
+//                 subject = 'O';
+//             }if(course[0].primary[0] == 'Personal Development'){
+//                 subject = 'O';
+//             }if(course[0].primary[0] == 'Photography'){
+//                 subject = 'A';
+//             }if(course[0].primary[0] == 'Teaching & Academics'){
+//                 subject = 'A';
+//             }
 
-            // console.log("subject == ",subject);
+//             // console.log("subject == ",subject);
 
-            var subb = 0;
-            // modified by Yashwant Sahu CS+Dev Added
+//             var subb = 0;
+//             // modified by Yashwant Sahu CS+Dev Added
 
-            if(subject  == 'CS' || subject == 'B' || subject == 'DEV' || subject == 'DA' || subject == "CS + DEV"){
-               subb = 10; 
-            }
-            if(subject  == 'SENG' || subject == 'M'){
-               subb = 7; 
-            }
-            if(subject  == 'SO' || subject == 'O' || subject == 'HL' || subject == 'A'){
-               subb = 5; 
-            }
-        // console.log("sudd in",subb);
+//             if(subject  == 'CS' || subject == 'B' || subject == 'DEV' || subject == 'DA' || subject == "CS + DEV"){
+//                subb = 10; 
+//             }
+//             if(subject  == 'SENG' || subject == 'M'){
+//                subb = 7; 
+//             }
+//             if(subject  == 'SO' || subject == 'O' || subject == 'HL' || subject == 'A'){
+//                subb = 5; 
+//             }
+//         // console.log("sudd in",subb);
 
-        }
+//         }
 
-        //sunbject
+//         //sunbject
         
  
-        if(tempresponse.price != null){
-            if(tempresponse.price[0].retail[0] >= 5000){
-                var price = 10;
-            }
-            if(tempresponse.price[0].retail[0] > 1000 || tempresponse.price[0].retail[0] < 5000){
-                var price = 9;
-            }
-            if(tempresponse.price[0].retail[0] <= 1000){
-                var price = 8;
-            }
-            if(tempresponse.price[0].retail[0] == 'Free'){
-                var price = 8;
-            }
-        }
-//price
+//         if(tempresponse.price != null){
+//             if(tempresponse.price[0].retail[0] >= 5000){
+//                 var price = 10;
+//             }
+//             if(tempresponse.price[0].retail[0] > 1000 || tempresponse.price[0].retail[0] < 5000){
+//                 var price = 9;
+//             }
+//             if(tempresponse.price[0].retail[0] <= 1000){
+//                 var price = 8;
+//             }
+//             if(tempresponse.price[0].retail[0] == 'Free'){
+//                 var price = 8;
+//             }
+//         }
+// //price
 
-        var des = 0;
-        if(tempresponse.description[0].hasOwnProperty('long')){
-            var  str = tempresponse.description[0].long[0];
-         var  count = str.length;
-         for (var j = 0; j < count; j++) {
+//         var des = 0;
+//         if(tempresponse.description[0].hasOwnProperty('long')){
+//             var  str = tempresponse.description[0].long[0];
+//          var  count = str.length;
+//          for (var j = 0; j < count; j++) {
             
-         }
+//          }
          
-         if(j >= 400){
-             des=des+9;
-         }if(j> 100 && j < 400){
-            var des=des+10;
-         }  
-         if(j < 100){
-            var des=des+7;
-         }
-         }
+//          if(j >= 400){
+//              des=des+9;
+//          }if(j> 100 && j < 400){
+//             var des=des+10;
+//          }  
+//          if(j < 100){
+//             var des=des+7;
+//          }
+//          }
 
-// UniverSity
-         var UniverRank = 0;
+// // UniverSity
+//          var UniverRank = 0;
         
-         if(CourseraUniversityList[tempresponse['$'].manufacturer_name] === undefined)
-           UniverRank = 5 * 0.15;
-         else
-           UniverRank = CourseraUniversityList[tempresponse['$'].manufacturer_name] * 0.15;
+//          if(CourseraUniversityList[tempresponse['$'].manufacturer_name] === undefined)
+//            UniverRank = 5 * 0.15;
+//          else
+//            UniverRank = CourseraUniversityList[tempresponse['$'].manufacturer_name] * 0.15;
 
-         function create_UUID() {
-          var dt = new Date().getTime();
-          var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
-            var r = (dt + Math.random() * 16) % 16 | 0;
-            dt = Math.floor(dt / 16);
-            return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
-          });
-          return uuid;
-        }
-        var instructor  = ["Not Provided"];
+//          function create_UUID() {
+//           var dt = new Date().getTime();
+//           var uuid = 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function (c) {
+//             var r = (dt + Math.random() * 16) % 16 | 0;
+//             dt = Math.floor(dt / 16);
+//             return (c == 'x' ? r : (r & 0x3 | 0x8)).toString(16);
+//           });
+//           return uuid;
+//         }
+//         var instructor  = ["Not Provided"];
 
 
      
           
-          availability *= 0.15;
-          var subcount = subb * 0.15;
-          var descrip = des * 0.15; 
-          var pricect = price * 0.15;
-          var Start_Data_Rank = 10 * 0.2;
+//           availability *= 0.15;
+//           var subcount = subb * 0.15;
+//           var descrip = des * 0.15; 
+//           var pricect = price * 0.15;
+//           var Start_Data_Rank = 10 * 0.2;
           
-          // console.log(descrip , pricect , subcount, UniverRank,availability,Start_Data_Rank)
+//           // console.log(descrip , pricect , subcount, UniverRank,availability,Start_Data_Rank)
        
         
-          var finalSum = descrip + pricect + subcount + availability + UniverRank + Start_Data_Rank ;
+//           var finalSum = descrip + pricect + subcount + availability + UniverRank + Start_Data_Rank ;
 
 
-          var title = tempresponse.$.name;
-          let unique_id = tempresponse.$.sku_number;
+//           var title = tempresponse.$.name;
+//           let unique_id = tempresponse.$.sku_number;
  
-          var price = tempresponse.price[0].retail[0];
-          var currency = tempresponse.price[0].$.currency;
-          var subject = [`${tempresponse.category[0].primary[0]}`];
-          var url = `https://click.linksynergy.com/deeplink?id=aEDzMt9EP*4&mid=40328&murl=${tempresponse.URL[0].product[0]}`;
+//           var price = tempresponse.price[0].retail[0];
+//           var currency = tempresponse.price[0].$.currency;
+//           var subject = [`${tempresponse.category[0].primary[0]}`];
+//           var url = `https://click.linksynergy.com/deeplink?id=aEDzMt9EP*4&mid=40328&murl=${tempresponse.URL[0].product[0]}`;
   
-          if(tempresponse.description[0].hasOwnProperty('long')){
-          var descript = tempresponse.description[0].long[0];
-          }else{
-             var descript = "";
-          }
-          ++i;
+//           if(tempresponse.description[0].hasOwnProperty('long')){
+//           var descript = tempresponse.description[0].long[0];
+//           }else{
+//              var descript = "";
+//           }
+//           ++i;
         
        
         
 
-         const cs = new pgp.helpers.ColumnSet([
-          'title',
-          'start_date',
-          'price',
-          'uuid',
-          'price_currency',
-          'subjects',
-          'provider',
-          'university',
-          'rank',
-          'ranking_points',
-          'has_paid_certificates',
-          'url',
-          'instructors',
-          'description',
-          'unique_id'], {table: 'data'});
+//          const cs = new pgp.helpers.ColumnSet([
+//           'title',
+//           'start_date',
+//           'price',
+//           'uuid',
+//           'price_currency',
+//           'subjects',
+//           'provider',
+//           'university',
+//           'rank',
+//           'ranking_points',
+//           'has_paid_certificates',
+//           'url',
+//           'instructors',
+//           'description',
+//           'unique_id'], {table: 'data'});
             
-        // data input values:
-        const values = [{
-          title: title,
-          start_date: null,
-          price: price,
-          uuid: create_UUID(),
-          price_currency: currency,
-          subjects: subject,
-          provider: "Coursera",
-          university: tempresponse['$'].manufacturer_name,
-          rank: 1,
-          ranking_points: finalSum,
-          has_paid_certificates: true,
-          url: url,
-          instructors: instructor,
-          description: descript,
-          unique_id :unique_id
-        }];
+//         // data input values:
+//         const values = [{
+//           title: title,
+//           start_date: null,
+//           price: price,
+//           uuid: create_UUID(),
+//           price_currency: currency,
+//           subjects: subject,
+//           provider: "Coursera",
+//           university: tempresponse['$'].manufacturer_name,
+//           rank: 1,
+//           ranking_points: finalSum,
+//           has_paid_certificates: true,
+//           url: url,
+//           instructors: instructor,
+//           description: descript,
+//           unique_id :unique_id
+//         }];
             
       
-        // generating a multi-row insert query:
-        const query = pgp.helpers.insert(values, cs);
+//         // generating a multi-row insert query:
+//         const query = pgp.helpers.insert(values, cs);
       
             
-        // executing the query:
-        await DB.none(query).then(()=>{
-          // console.log(query)
-          console.log("Data Added")
-        }).catch((err)=>{
-          console.log(err)
-          console.log("Not Added")
-        });
+//         // executing the query:
+//         await DB.none(query).then(()=>{
+//           // console.log(query)
+//           console.log("Data Added")
+//         }).catch((err)=>{
+//           console.log(err)
+//           console.log("Not Added")
+//         });
       
              
-//map ends 
-    })).then(()=>{
-      return res.send("Coursera Complete")
-    }).catch((err)=>{
-      console.log(err)
-      return res.send(err)
-    });;
-// xml2json end
-})
+// //map ends 
+//     })).then(()=>{
+//       return res.send("Coursera Complete")
+//     }).catch((err)=>{
+//       console.log(err)
+//       return res.send(err)
+//     });;
+// // xml2json end
+// })
 
-// res.send(unique)
+// // res.send(unique)
 
-//route ends
-});
+// //route ends
+// });
 
 
 
