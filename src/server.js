@@ -21,26 +21,26 @@ const host = process.env.HOSTNAME || '0.0.0.0';
 // shedular by Yashwant Sahu Added 
 
 const axios = require('axios');
-// const cron = require('node-cron');
+const cron = require('node-cron');
 
 
 
-// // 0 0 * * * Time for 1 day at the 12pm reupdation
+// 0 0 * * * Time for 1 day at the 12pm reupdation
 
-// cron.schedule('0 0 * * *', async() => {
-//   console.log('Schedular Running');
+cron.schedule('0 0 * * *', async() => {
+  console.log('Schedular Running');
 
-//   let response = await axios.get('http://0.0.0.0:8080/api/getFeedsFutureLearn');
+  let response = await axios.get('https://api.classbazaar.com/api/getFeedsFutureLearn');
 
-//   if(response.status == 200)
-//   {
-//     response = await axios.get('http://0.0.0.0:8080/api/getEdx');
-//     if(response.status == 200)
-//     {
-//       console.log('Done')
-//     }
-//   }
-// });
+  if(response.status == 200)
+  {
+    response = await axios.get('https://api.classbazaar.com/api/getEdx');
+    if(response.status == 200)
+    {
+      console.log('Done')
+    }
+  }
+});
 
 
 
