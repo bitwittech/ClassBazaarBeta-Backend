@@ -6,6 +6,7 @@ const pgp = require("pg-promise")({
 import DB from '../mydb';
 
 import {
+
   Router
 } from 'express';
 import db from '../db';
@@ -571,6 +572,7 @@ router.get('/api/course/', async (req, res) => {
   await axios.get(url).then((response)=>{
     summaryData.price *= response.data.data.INR;
   })
+
 
   // here we update the internal tracker
   tracker(summaryData.title);
@@ -1768,6 +1770,8 @@ router.post('/api/getFeedsList', async (req, res) => {
 });
 
 
+
+
 // Get the Udemy Courses ===============================================
 //=======================================================================
 
@@ -2320,6 +2324,136 @@ router.post('/api/getFeedsList', async (req, res) => {
 
 // //route ends
 // });
+
+
+// user Tracking APIs 
+
+// {
+  // user_email: 'User Not Loged In',
+  // time_stamp: '09/05/2022, 16:29:35',
+  // end_time: '09/05/2022, 16:30:20',
+  // path: '[{"path":"/","time":"09/05/2022, 16:29:40"},{"path":"/listing","time":"09/05/2022, 16:29:54"},{"path":"/about","time":"09/05/2022, 16:30:05"},{"path":"/","time":"09/05/2022, 16:30:18"}]'
+// }
+// [
+  // { path: '/', time: '09/05/2022, 16:29:40' },
+  // { path: '/listing', time: '09/05/2022, 16:29:54' },
+  // { path: '/about', time: '09/05/2022, 16:30:05' },
+  // { path: '/', time: '09/05/2022, 16:30:18' }
+// ]
+// 
+
+
+// User Tracking 
+
+router.get('/api/userTrack', async (req, res) => {
+  console.log(req.query)
+  
+  
+  const finalData = []
+  
+  const time_stamp_temp = req.query.time_stamp.split(' ')[1].split(':'); 
+  
+  // console.log(time_stamp);
+
+  let gap = 0;
+  
+
+  JSON.parse(req.query.path).map((data,index)=>{
+    let time  = data.time.split(' ')[1].split(':');
+      
+      gap -= parseInt(time[0]+time[1]+time[2]) - parseInt(time_stamp_temp[0]+time_stamp_temp[1]+time_stamp_temp[2]) 
+      gap = Math.abs(gap)
+      finalData.push({path : data.path,time: gap  })
+    })
+
+    req.query.page_time_span = JSON.stringify(finalData)
+
+    delete req.query.path
+
+    console.log(req.query) 
+
+
+    db.table('user_tracking_data')
+    .insert(req.query)
+    .then((data) => {
+      res.status(200).send({
+        status: 'Result Added successfully',
+      });
+    })
+    .catch((e) => {
+      console.log('ERROR', e);
+      res.status(500).send({
+        status: 'Error'
+      });
+    });
+
+})
+
+
+// course Card
+
+
+router.get('/api/cardTrack', async (req, res) => {
+  console.log(req.query)
+
+    db.table('card_event')
+    .insert(req.query)
+    .then((data) => {
+      res.status(200).send({
+        status: 'Result Added successfully',
+      });
+    })
+    .catch((e) => {
+      console.log('ERROR', e);
+      res.status(500).send({
+        status: 'Error'
+      });
+    });
+
+})
+
+// course Card
+
+
+router.get('/api/cardEnrollTrack', async (req, res) => {
+  console.log(req.query)
+
+    db.table('enroll_event')
+    .insert(req.query)
+    .then((data) => {
+      res.status(200).send({
+        status: 'Result Added successfully',
+      });
+    })
+    .catch((e) => {
+      console.log('ERROR', e);
+      res.status(500).send({
+        status: 'Error'
+      });
+    });
+
+})
+
+// course Card
+
+router.get('/api/searchTrack', async (req, res) => {
+  console.log(req.query)
+
+    db.table('search_event')
+    .insert(req.query)
+    .then((data) => {
+      res.status(200).send({
+        status: 'Result Added successfully',
+      });
+    })
+    .catch((e) => {
+      console.log('ERROR', e);
+      res.status(500).send({
+        status: 'Error'
+      });
+    });
+
+})
 
 
 
