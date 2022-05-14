@@ -22,14 +22,15 @@ import {
   parse
 } from 'node-html-parser';
 
+
 import {CourseraUniversityList,
   EdxUniversityList,
   EdxSubjectList,
   FLUniversityList,
   FLSubjectList} from '../List_Of_University';
 
-
-const assert = require('assert');
+  
+  const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
 var ObjectId = require('mongodb').ObjectId;
 const router = new Router();
@@ -39,13 +40,17 @@ const {
 const client = new FusionAuthClient(
   'NiITD64khrkH7jn6PUNYCPdancc2gdiD8oZJDTsXFOA',
   'https://auth.classbazaar.in',
-);
+  );
 
-const providersGlobal = [
-  'Coursera',
-  'edX',
-  'FutureLearn',
-  'SimpliLearn',
+  // added by Yashwant sahu 
+const multer = require('multer')
+const nodemailer = require('nodemailer')
+  
+  const providersGlobal = [
+    'Coursera',
+    'edX',
+    'FutureLearn',
+    'SimpliLearn',
   'Udemy',
   'Udacity',
   'upGrad',
@@ -564,15 +569,18 @@ router.get('/api/course/', async (req, res) => {
       .then((course) => course);
   }
 
-  
+  console.log(">>>>>>>",summaryData);
+
   // converting the price into INR
   
   let  url = `https://freecurrencyapi.net/api/v2/latest?apikey=45f68830-84f3-11ec-8258-811245eebca2&base_currency=${summaryData.price_currency}`;
   
-  await axios.get(url).then((response)=>{
+  await axios.get(url)
+  .then((response)=> {
     summaryData.price *= response.data.data.INR;
   })
-
+  .catch((err)=> console.log('Error => ',err))
+  
 
   // here we update the internal tracker
   tracker(summaryData.title);
@@ -2343,10 +2351,10 @@ router.post('/api/getFeedsList', async (req, res) => {
 // 
 
 
-// User Tracking 
+// User Tracking ====================================
 
 router.get('/api/userTrack', async (req, res) => {
-  console.log(req.query)
+  // console.log(req.query)
   
   
   const finalData = []
@@ -2369,8 +2377,9 @@ router.get('/api/userTrack', async (req, res) => {
     req.query.page_time_span = JSON.stringify(finalData)
 
     delete req.query.path
+    delete req.query.time_stamp
 
-    console.log(req.query) 
+    // console.log(req.query) 
 
 
     db.table('user_tracking_data')
@@ -2456,5 +2465,87 @@ router.get('/api/searchTrack', async (req, res) => {
 })
 
 
+// middilwear for the multer setup ========================
+
+const storage = multer.diskStorage({
+  destination: function(req, file, cb) {
+      cb(null, './public/upload');
+  },
+  filename: function(req, file, cb) {
+      cb(null, new Date().toISOString() + "_" + file.originalname);
+  }
+});
+
+const upload = multer({
+  storage: storage,
+ });
+
+
+ // nodemailer setup ==========================================
+
+const transport = nodemailer.createTransport({
+  host : 'smtp.gmail.com',
+  auth : {
+    user: "pocketchat30@gmail.com",
+    pass : "8302043259",
+  },
+})
+
+
+
+// Apis for submit the remuse data ===============================================================================
+
+const loacalLink = 'http://0.0.0.0:8080/'
+const officialLink = 'https://api.classbazaar.com/'
+
+router.post('/api/meetUp',upload.single('resume'), async(req,res)=>{
+  
+  console.log(req.file)
+
+  req.body.resume_link =  `${loacalLink}${req.file.path}`
+
+
+  const option = {
+    from : 'Class Bazaar',
+    to : 'yashking3002@gmail.com',
+    subject : `Job Application for ${req.body.profile}`,
+    text : `
+    Respected Sir,
+    My name is ${req.body.name}. I found my skill are relevent for this position. 
+    And i also attached my resume link for your reffrence.
+    
+    regards,
+    ${req.body.name}
+    ${req.body.contact}
+    `,
+    attachments: [{
+      filename: req.file.filename,
+      path: req.file.path
+  }]
+  }
+
+  await transport.sendMail(option, (err,res)=>{
+    if(err) return console.log(err);
+  
+    console.log(res);
+  })
+  
+
+  db.table('resume')
+  .insert(req.body)
+  .then((data) => {
+    res.status(200).send({
+      status: 'Result Added successfully',
+    });
+  })
+  .catch((e) => {
+    console.log('ERROR', e);
+    res.status(500).send({
+      status: 'Error'
+    });
+  });
+})
+
+// ENDS ========================================================================
 
 export default router;

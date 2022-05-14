@@ -29,6 +29,7 @@
         "juice": "^4.3.2",
         "knex": "^0.21.21",
         "mongodb": "^3.7.3",
+        "multer": "^1.4.4",
         "node-fetch": "^1.7.3",
         "node-html-parser": "^1.4.9",
         "nodemailer": "^4.7.0",

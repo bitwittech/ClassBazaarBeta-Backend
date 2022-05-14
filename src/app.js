@@ -93,6 +93,12 @@ app.use(
     cookie: { maxAge: 60000000000 },
   }),
 );
+
+// Yashwant Sahu added 
+// set uploads as static
+app.use('/public',express.static(path.join(__dirname, 'public')));
+
+
 app.use(i18nextMiddleware.handle(i18next));
 app.use(passport.initialize());
 app.use(passport.session());
