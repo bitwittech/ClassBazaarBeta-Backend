@@ -35,6 +35,7 @@ import schema from './schema';
 import session from 'express-session';
 import udemyRoutes from './routes/udemy';
 import userRoutes from './routes/users';
+import userAuth from './routes/userAuth';
 
 i18next
   .use(LanguageDetector)
@@ -55,6 +56,7 @@ i18next
     },
   });
 
+  
 const app = express();
 
 app.set('trust proxy', 'loopback');
@@ -109,6 +111,7 @@ app.use(accountRoutes);
 // app.use(udemyRoutes);
 app.use(courseListRoutes);
 app.use(userRoutes);
+app.use(userAuth);
 
 // The following routes are intended to be used in development mode only
 if (process.env.NODE_ENV !== 'production') {

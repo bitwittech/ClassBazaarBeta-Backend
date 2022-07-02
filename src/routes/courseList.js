@@ -2354,50 +2354,51 @@ router.post('/api/getFeedsList', async (req, res) => {
 // User Tracking ====================================
 
 router.get('/api/userTrack', async (req, res) => {
-  // console.log(req.query)
   
-  
-  const finalData = []
-  
-  const time_stamp_temp = req.query.time_stamp.split(' ')[1].split(':'); 
-  
-  // console.log(time_stamp);
+  console.log(req.query);
 
-  let gap = 0;
-  
+  const finalData = [];
 
-  JSON.parse(req.query.path).map((data,index)=>{
-    let time  = data.time.split(' ')[1].split(':');
+  
+  let hour = 0, min = 0, sec = 0;
+  
+  let start_time = req.query.time_stamp.split(' ')[1].split(':');
+
+
+  JSON.parse(req.query.path).map((data, index) => {
+    
+    if(index!= 0)
+      start_time =  JSON.parse(req.query.path)[index-1].time.split(' ')[1].split(':');
+  
+    const end_time = data.time.split(' ')[1].split(':');
+    hour =  (end_time[0] - start_time[0]) * 3600
+    min = (end_time[1] - start_time[1]) * 60
+    sec = end_time[2] - start_time[2]
+    hour += min + sec
+
+    finalData.push({ path: data.path, time : hour});
+  });
+
+  req.query.page_time_span = JSON.stringify(finalData);
+
+  delete req.query.path;
+  delete req.query.time_stamp;
+
       
-      gap -= parseInt(time[0]+time[1]+time[2]) - parseInt(time_stamp_temp[0]+time_stamp_temp[1]+time_stamp_temp[2]) 
-      gap = Math.abs(gap)
-      finalData.push({path : data.path,time: gap  })
-    })
-
-    req.query.page_time_span = JSON.stringify(finalData)
-
-    delete req.query.path
-    delete req.query.time_stamp
-
-    // console.log(req.query) 
-
-
-    db.table('user_tracking_data')
+  db.table('user_tracking_data')
     .insert(req.query)
-    .then((data) => {
+    .then(data => {
       res.status(200).send({
         status: 'Result Added successfully',
       });
     })
-    .catch((e) => {
+    .catch(e => {
       console.log('ERROR', e);
       res.status(500).send({
-        status: 'Error'
+        status: 'Error',
       });
     });
-
-})
-
+});
 
 // course Card
 

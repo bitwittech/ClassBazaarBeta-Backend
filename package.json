@@ -26,6 +26,7 @@
         "i18next-express-middleware": "^1.9.1",
         "i18next-node-fs-backend": "^1.2.1",
         "jest": "^22.4.4",
+        "jsonwebtoken": "^8.5.1",
         "juice": "^4.3.2",
         "knex": "^0.21.21",
         "mongodb": "^3.7.3",
