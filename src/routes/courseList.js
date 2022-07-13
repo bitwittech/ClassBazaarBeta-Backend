@@ -895,33 +895,49 @@ router.post('/api/newregistration', (req, res) => {
     class_year,
     city,
     mobile_no,
-    password
+    password,
+    eduData,
   } = req.body;
 
   db.table('newregistration')
-    .insert({
-      userid,
-      name,
-      gender,
-      email_address,
-      school_or_college_name,
-      class_year,
-      city,
-      mobile_no,
-      password
-    }).onConflict('email_address')
-    .merge()
-    .then((data) => {
-      res.status(200).send({
-        status: 'User Added successfully',
+  .where(validation => {
+    validation.orWhere('mobile_no',"=",req.body.mobile_no)
+    validation.orWhere('email_address',"=",req.body.email_address)
+    validation.orWhere('name',"=",req.body.name)
+  }).count('_id as CNT')
+  .then((data)=> {
+    console.log(data)
+    if(data[0].CNT > 0 && !req.body.eduTest)
+        res.status(203).send({message : 'May be provided UserName, Email, Or Number is already exist !!!'});
+    else{
+      db.table('newregistration')
+      .insert({
+        userid,
+        name,
+        gender,
+        email_address,
+        school_or_college_name,
+        class_year,
+        city,
+        mobile_no,
+        password
+      }).onConflict('email_address')
+      .merge()
+      .then((data) => {
+        res.status(200).send({
+          message: 'User Added successfully',
+        });
+      })
+      .catch((e) => {
+        console.log('ERROR', e);
+        res.status(500).send({
+          status: 'Error'
+        });
       });
-    })
-    .catch((e) => {
-      console.log('ERROR', e);
-      res.status(500).send({
-        status: 'Error'
-      });
-    });
+    }
+})
+
+  
 });
 
 router.post('/api/edxresult', (req, res) => {
@@ -2376,10 +2392,15 @@ router.get('/api/userTrack', async (req, res) => {
     sec = end_time[2] - start_time[2]
     hour += min + sec
 
-    finalData.push({ path: data.path, time : hour});
+    
+
+    finalData.push({ path: data.path, time :  Math.abs(hour)});
   });
 
   req.query.page_time_span = JSON.stringify(finalData);
+
+  console.log(JSON.stringify(finalData))
+
 
   delete req.query.path;
   delete req.query.time_stamp;
@@ -2503,12 +2524,12 @@ router.post('/api/meetUp',upload.single('resume'), async(req,res)=>{
   
   console.log(req.file)
 
-  req.body.resume_link =  `${loacalLink}${req.file.path}`
+  req.body.resume_link =  `${officialLink}${req.file.path}`
 
 
   const option = {
     from : 'Class Bazaar',
-    to : 'yashking3002@gmail.com',
+    to : 'info@classbazaar.com',
     subject : `Job Application for ${req.body.profile}`,
     text : `
     Respected Sir,
@@ -2545,6 +2566,20 @@ router.post('/api/meetUp',upload.single('resume'), async(req,res)=>{
       status: 'Error'
     });
   });
+})
+
+router.get('/api/checkMobile',(req,res)=>{
+  console.log(req.query.contact)
+
+  db.table('newregistration')
+  .where('mobile_no',"=",req.query.contact).count('_id as CNT')
+  .then((data)=> {
+    if(data[0].CNT > 0)
+      return res.status(406).send({message : 'Phone Number Already Exist !!!'});
+      else 
+      return res.status(200).send({message : 'You can go !!!'});
+
+})
 })
 
 // ENDS ========================================================================
