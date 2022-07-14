@@ -29,6 +29,9 @@ import {CourseraUniversityList,
   FLUniversityList,
   FLSubjectList} from '../List_Of_University';
 
+
+const Cryptr = require('cryptr');
+const cryptr = new Cryptr('34ihg84587874b*&*&^(*H4987bcy(&*P9t84bl(*&^(n(^Y5j(* Y*4509j)9T5POJ0');
   
   const assert = require('assert');
 var MongoClient = require('mongodb').MongoClient;
@@ -886,7 +889,7 @@ router.post('/api/eduMarkUpdated', (req, res) => {
 
 router.post('/api/newregistration', (req, res) => {
   console.log("Data Updating ",req.body)
-  const {
+  let {
     userid,
     name,
     gender,
@@ -898,6 +901,10 @@ router.post('/api/newregistration', (req, res) => {
     password,
     eduData,
   } = req.body;
+
+  password = cryptr.encrypt(req.body.password)
+
+  console.log('>>>>',password);
 
   db.table('newregistration')
   .where(validation => {
@@ -1089,6 +1096,7 @@ router.post('/api/newLoginDetails', (req, res) => {
     .where('email_address', '=', req.body.email)
     .first()
     .then((user) => {
+      user.pasword = cryptr.decrypt(user.pasword)
       res.send({
         data: user
       });

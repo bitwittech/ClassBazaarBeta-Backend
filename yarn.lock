@@ -1737,6 +1737,11 @@
     "shebang-command" "^1.2.0"
     "which" "^1.2.9"
 
+"cryptr@^6.0.3":
+  "integrity" "sha512-Nhaxn3CYl/OoWF3JSZlF8B6FQO600RRkU3g8213OGEIq4YvMlc3od8hL9chubhY1SmTq8ienvCRq1MSFjMTpOg=="
+  "resolved" "https://registry.npmjs.org/cryptr/-/cryptr-6.0.3.tgz"
+  "version" "6.0.3"
+
 "cson-parser@3.0.0":
   "integrity" "sha512-khmLtNmwe6SSlWz5vrhay9yWd/Fwwyiel+vt+1vIcCT9AsdqNuLXuK9tYhhAw1FdSSHjLc56PW8xa565/x73XQ=="
   "resolved" "https://registry.npmjs.org/cson-parser/-/cson-parser-3.0.0.tgz"
