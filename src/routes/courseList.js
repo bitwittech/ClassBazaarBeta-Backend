@@ -1096,7 +1096,7 @@ router.post('/api/newLoginDetails', (req, res) => {
     .where('email_address', '=', req.body.email)
     .first()
     .then((user) => {
-      user.pasword = cryptr.decrypt(user.pasword)
+      user.password = cryptr.decrypt(user.password)
       res.send({
         data: user
       });
@@ -2515,9 +2515,11 @@ const upload = multer({
 
 const transport = nodemailer.createTransport({
   host : 'smtp.gmail.com',
+  port : 465,
+  secure : true,
   auth : {
-    user: "pocketchat30@gmail.com",
-    pass : "8302043259",
+    user: "yashwant@classbazaar.com",
+    pass : "sydyqlekomadowmi",
   },
 })
 
@@ -2537,7 +2539,7 @@ router.post('/api/meetUp',upload.single('resume'), async(req,res)=>{
 
   const option = {
     from : 'Class Bazaar',
-    to : 'info@classbazaar.com',
+    to : 'bitwitech@gmail.com',
     subject : `Job Application for ${req.body.profile}`,
     text : `
     Respected Sir,
@@ -2576,19 +2578,8 @@ router.post('/api/meetUp',upload.single('resume'), async(req,res)=>{
   });
 })
 
-router.get('/api/checkMobile',(req,res)=>{
-  console.log(req.query.contact)
 
-  db.table('newregistration')
-  .where('mobile_no',"=",req.query.contact).count('_id as CNT')
-  .then((data)=> {
-    if(data[0].CNT > 0)
-      return res.status(406).send({message : 'Phone Number Already Exist !!!'});
-      else 
-      return res.status(200).send({message : 'You can go !!!'});
 
-})
-})
 
 // ENDS ========================================================================
 
