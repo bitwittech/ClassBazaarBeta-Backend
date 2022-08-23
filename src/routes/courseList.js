@@ -469,8 +469,9 @@ router.get('/api/bookmarks/', async (req, res) => {
 
 async function converter (currency,amount){
 
-  let  url = `https://freecurrencyapi.net/api/v2/latest?apikey=45f68830-84f3-11ec-8258-811245eebca2&base_currency=${currency}`;
-
+  let  url = 
+  `https://api.currencyapi.com/v3/latest?apikey=45f68830-84f3-11ec-8258-811245eebca2&base_currency=${currency}`;
+  
   await axios.get(url).then((response)=>{
     amount *= response.data.data.INR;
     console.log(amount)
@@ -576,11 +577,11 @@ router.get('/api/course/', async (req, res) => {
 
   // converting the price into INR
   
-  let  url = `https://freecurrencyapi.net/api/v2/latest?apikey=45f68830-84f3-11ec-8258-811245eebca2&base_currency=${summaryData.price_currency}`;
+  let  url = `https://api.currencyapi.com/v3/latest?apikey=45f68830-84f3-11ec-8258-811245eebca2&base_currency=${summaryData.price_currency}`;
   
   await axios.get(url)
   .then((response)=> {
-    summaryData.price *= response.data.data.INR;
+    summaryData.price *= response.data.data.INR.value;
   })
   .catch((err)=> console.log('Error => ',err))
   
@@ -2579,8 +2580,36 @@ router.post('/api/meetUp',upload.single('resume'), async(req,res)=>{
 })
 
 
-
-
 // ENDS ========================================================================
+
+// makeing API for serch result
+router.get('/api/createSearchOBJ', async (req, res) => {
+  // console.log("Yashwant");
+  console.log('>>>>>>',req.query.search)
+    let data = await db
+       .select('title')
+      .from('data')
+      .where((qb)=> {
+        qb.orWhere('title', 'ilike', `%${req.query.search}%`) 
+        qb.orWhere('provider', 'ilike', `%${req.query.search}%`) 
+        qb.orWhere('university', 'ilike', `%${req.query.search}%`) 
+        // qb.orWhere('description', 'ilike', `%${req.query.search}%`) 
+      })
+      .orderBy('ranking_points','desc')
+      .limit(15)
+      .then((course) => course)
+      .catch((e) => {
+        console.log('ERROR', e);
+        return res.status(500).send({
+          status: 'Error'
+        });
+      });
+      console.log(">>>>>>>",data);
+
+  return res.send({
+    data
+  });
+});
+
 
 export default router;

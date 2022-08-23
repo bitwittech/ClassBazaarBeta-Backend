@@ -82,7 +82,8 @@ router.post('/api/loginJWT', async (req, res) => {
 
 
 const loacalLink = 'http://0.0.0.0:8080/'
-const officialLink = 'https://api.classbazaar.com/'
+const officialLink_api = 'https://api.classbazaar.com/'
+const officialLink_site = 'https://www.classbazaar.com/'
 
 router.post('/api/verificationMail', async(req,res)=>{
   console.log(req.body)
@@ -113,7 +114,7 @@ router.post('/api/verificationMail', async(req,res)=>{
     </br>
     <div>
         <p>
-              Hello ${req.body.name}, your verification link is <a href = "${loacalLink}api/verification/?token=${token}" >Click To Verify<a>. 
+              Hello ${req.body.name}, your verification link is <a href = "${officialLink_api}api/verification/?token=${token}" >Click To Verify<a>. 
               Link is valid only for 30 minutes.
           </p>
     </div>
@@ -186,7 +187,7 @@ router.get('/api/verification',verifyLink, async(req,res)=>{
       }).onConflict('email_address')
       .merge()
       .then((data) => {
-        res.redirect(`http://localhost:3000/verified?email=${email_address}&password=${req.data.password}`)
+        res.redirect(`${officialLink_site}verified?email=${email_address}&password=${req.data.password}`)
       })
       .catch((e) => {
         console.log('ERROR', e);
