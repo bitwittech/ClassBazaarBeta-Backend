@@ -95,28 +95,29 @@ router.put('/api/user/review', async (req, res) => {});
 // Gets reviews for the user
 router.get('/api/user/reviews', async (req, res) => {});
 
-
-router.post('/api/webhook',async (req,res)=>{
-  console.log("WEBHOOK",req.body)
-  console.log("EVENT", req.body.event.type)
-  if(req.body.event.type === "user.registration.create"){
-    const {user} = req.body.event;
+router.post('/api/webhook', async (req, res) => {
+  console.log('WEBHOOK', req.body);
+  console.log('EVENT', req.body.event.type);
+  if (req.body.event.type === 'user.registration.create') {
+    const { user } = req.body.event;
     const requestData = {
-      userIds:[
-        "adebdbaf-980d-47a3-8828-ea66318abece"
-      ]
-    }
+      userIds: ['adebdbaf-980d-47a3-8828-ea66318abece'],
+    };
     try {
-      const res = await client.sendEmail("a95455e8-62c8-44b4-8104-cfc14a6bc33e",requestData,()=>{
-        console.log("Mail sent to", user.id)
-      })
-      
-      return res.status(200).send('ok')
+      const res = await client.sendEmail(
+        'a95455e8-62c8-44b4-8104-cfc14a6bc33e',
+        requestData,
+        () => {
+          console.log('Mail sent to', user.id);
+        },
+      );
+
+      return res.status(200).send('ok');
     } catch (error) {
-      console.log("ERROR",error)
+      console.log('ERROR', error);
     }
   }
-  return res.status(200).send('ok')
-})
+  return res.status(200).send('ok');
+});
 
 export default router;

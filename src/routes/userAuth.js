@@ -4,7 +4,8 @@ import { Router } from 'express';
 const nodemailer = require('nodemailer')
 const Cryptr = require('cryptr');
 const cryptr = new Cryptr('34ihg84587874b*&*&^(*H4987bcy(&*P9t84bl(*&^(n(^Y5j(* Y*4509j)9T5POJ0');
-  
+const hbs = require('nodemailer-express-handlebars');
+const path = require('path')
 const router = new Router();
 
 // token secreet
@@ -69,19 +70,31 @@ router.post('/api/loginJWT', async (req, res) => {
 
 // verification ====================================================================
  // nodemailer setup ==========================================
+ const MAIL = 'info@classbazaar.com'
+ const PASS = 'qatskwtlnbapxqlq'
+ 
+ 
 
  const transport = nodemailer.createTransport({
   host : 'smtp.gmail.com',
   port : 465,
   secure : true,
   auth : {
-    user: "yashwant@classbazaar.com",
-    pass : "sydyqlekomadowmi",
+    user: MAIL,
+    pass :PASS,
   },
 })
 
+transport.use('compile',hbs({
+  viewEngine :  {
+    defaultLayout: false,
+  },
+  viewPath : path.resolve('./views/')
+}))
+
 
 const loacalLink = 'http://0.0.0.0:8080/'
+const loacalLink_site = 'http://0.0.0.0:3000/'
 const officialLink_api = 'https://api.classbazaar.com/'
 const officialLink_site = 'https://www.classbazaar.com/'
 
@@ -114,7 +127,7 @@ router.post('/api/verificationMail', async(req,res)=>{
     </br>
     <div>
         <p>
-              Hello ${req.body.name}, your verification link is <a href = "${officialLink_api}api/verification/?token=${token}" >Click To Verify<a>. 
+              Hello ${req.body.name}, your verification link is <a href = "${loacalLink}api/verification/?token=${token}" >Click To Verify<a>. 
               Link is valid only for 30 minutes.
           </p>
     </div>
@@ -187,7 +200,7 @@ router.get('/api/verification',verifyLink, async(req,res)=>{
       }).onConflict('email_address')
       .merge()
       .then((data) => {
-        res.redirect(`${officialLink_site}verified?email=${email_address}&password=${req.data.password}`)
+        res.redirect(`${loacalLink_site}verified?email=${email_address}&password=${req.data.password}`)
       })
       .catch((e) => {
         console.log('ERROR', e);
@@ -197,8 +210,22 @@ router.get('/api/verification',verifyLink, async(req,res)=>{
       });
 })
 
+// route of welcome mail on signup
+router.get('/api/welcome',async(req,res)=>{
+  console.log(req.query)
+  const option2 = {
+    from : 'Class Bazaar',
+    to : req.query.email_address,
+    subject : `Welcome Mail from Class Bazaar`,
+    template : 'welcome'
+  }
 
-
+  await transport.sendMail(option2, (err,response)=>{
+    console.log(err)
+    if(err) return res.status(503).send({message : 'Somthing went wrong !!!'});
+    return res.send({message : 'WelCome mail has been sent to your mail.'})
+  })
+})
 
 
 export default router;
