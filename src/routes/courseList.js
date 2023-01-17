@@ -133,7 +133,9 @@ function getQueries(
     }
     if (startDateFilter === 'start:flexible') {
       // console.log('Query for flexible start date');
-      qb.where('is_flexible', '=', true);
+      // qb.where('is_flexible', '=', true);
+      qb.whereNull('start_date');
+
     }
     if (startDateFilter === 'start:lte30') {
       // console.log('Query for flexible start date with lte30');
@@ -322,7 +324,7 @@ router.get('/api/v2/courses/', async (req, res) => {
 
         if (startDateFilter === 'start:flexible') {
           // console.log('Query for flexible start date');
-          qb.where('is_flexible', '=', true);
+          qb.whereNull('start_date');
         }
 
         if (startDateFilter === 'start:lte30') {
@@ -1480,7 +1482,7 @@ router.get("/api/getEdx", async (req, res) => {
         // console.log(tempresponse.course_runs[0].title)
         
         
-  // duratation
+  // duration
         if (tempresponse.course_runs[0].start != null) {
 
 
@@ -1741,7 +1743,7 @@ router.get("/api/getEdx", async (req, res) => {
   await DB.none(query).then(()=>{
     console.log("Data Added")
   }).catch((err)=>{
-    console.log(err)
+    // console.log(err)
     console.log("Not Added")
   });
 
