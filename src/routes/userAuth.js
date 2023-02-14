@@ -43,10 +43,10 @@ router.post('/api/verifyToken', verifyToken, (req, res) => {
 // login====================
 router.post('/api/loginJWT', async (req, res) => {
   console.log('new log in ', req.body);
-  if (req.body.email) {
+  if (req.body.email || req.body.email_address) {
     await db
       .table('newregistration')
-      .where('email_address', '=', req.body.email)
+      .where('email_address', '=', req.body.email || req.body.email_address)
       .first()
       .then(user => {
         console.log(user);
@@ -62,10 +62,10 @@ router.post('/api/loginJWT', async (req, res) => {
             });
           }
           return res
-            .sendStatus(401)
+            .sendStatus(203)
             .send({ message: 'Incorrect Credentials !!!' });
         }
-        return res.sendStatus(403).send({ message: 'User Not Found !!!' });
+        return res.sendStatus(203).send({ message: 'User Not Found !!!' });
       });
   } else return res.sendStatus(204).send('Payload Missing !!!');
 });
@@ -95,8 +95,8 @@ transport.use(
   }),
 );
 
-const loacalLink = 'http://0.0.0.0:8080/';
-const loacalLink_site = 'http://0.0.0.0:3000/';
+const loacalLink = 'http://localhost:8080/';
+const loacalLink_site = 'http://localhost:3000/';
 const officialLink_api = 'https://api.classbazaar.com/';
 const officialLink_site = 'https://www.classbazaar.com/';
 
@@ -108,11 +108,12 @@ router.post('/api/verificationMail', async (req, res) => {
     .where(validation => {
       validation.orWhere('mobile_no', '=', req.body.mobile_no);
       validation.orWhere('email_address', '=', req.body.email_address);
-      validation.orWhere('name', '=', req.body.name);
+      validation.orWhere('name', '=', req.body.username);
     })
     .count('_id as CNT')
     .then(async data => {
       console.log(data);
+
       if (data[0].CNT > 0 && !req.body.eduTest)
         return res.status(203).send({
           message:
@@ -146,36 +147,38 @@ router.post('/api/verificationMail', async (req, res) => {
 
         await transport.sendMail(option2, (err, response) => {
           console.log(response);
-          if (err)
-          {
+          if (err) {
             db.table('email_track')
-            .insert({
-             user_email:  req.body.email_address,
-             email_type: "Verification Mail",
-             status : 'not sent (error)'
-            })
-            .then((err,response)=>{
-              console.log(response)
-              return res.status(503).send({ message: 'Something went wrong !!!' });
-            })
-            .catch((err)=>{
-              console.log(err)
-            })
-          }
-          else {
+              .insert({
+                user_email: req.body.email_address,
+                email_type: 'Verification Mail',
+                status: 'not sent (error)',
+              })
+              .then((err, response) => {
+                console.log(response);
+                return res
+                  .status(503)
+                  .send({ message: 'Something went wrong !!!' });
+              })
+              .catch(err => {
+                console.log(err);
+              });
+          } else {
             db.table('email_track')
-            .insert({
-             user_email:  req.body.email_address,
-             email_type: "Verification Mail",
-             status : 'sent'
-            })
-            .then((err,response)=>{
-              console.log(response)
-              return res.status(503).send({ message: 'Something went wrong !!!' });
-            })
-            .catch((err)=>{
-              console.log(err)
-            })
+              .insert({
+                user_email: req.body.email_address,
+                email_type: 'Verification Mail',
+                status: 'sent',
+              })
+              .then((err, response) => {
+                console.log(response);
+                return res
+                  .status(503)
+                  .send({ message: 'Something went wrong !!!' });
+              })
+              .catch(err => {
+                console.log(err);
+              });
             return res.send({
               message: 'Verfication link has been sent to your mail.',
             });
@@ -197,6 +200,7 @@ function verifyLink(req, res, next) {
       if (err === null) {
         // console.log(req.data)
         req.data = data;
+        req.data.name = data.username;
         next();
       } else return res.sendStatus(401).send({ err: 'Ivalid Token !!!' });
     });
@@ -257,39 +261,38 @@ router.get('/api/welcome', async (req, res) => {
     template: 'welcome',
   };
 
-  await transport.sendMail(option2, (err) => {
+  await transport.sendMail(option2, err => {
     console.log(err);
-    if (err)
-    {
+    if (err) {
       db.table('email_track')
-      .insert({
-       user_email:  req.query.email_address,
-       email_type: "Welcome Mail",
-       status : 'not sent (error)'
-      })
-      .then((err,response)=>{
-        console.log(response)
-        return res.status(503).send({ message: 'Something went wrong !!!' });
-      })
-      .catch((err)=>{
-        console.log(err)
-      })
-    }
-    else{
-
+        .insert({
+          user_email: req.query.email_address,
+          email_type: 'Welcome Mail',
+          status: 'not sent (error)',
+        })
+        .then((err, response) => {
+          console.log(response);
+          return res.status(503).send({ message: 'Something went wrong !!!' });
+        })
+        .catch(err => {
+          console.log(err);
+        });
+    } else {
       db.table('email_track')
-    .insert({
-     user_email:  req.query.email_address,
-     email_type: "Welcome Mail",
-     status : 'sent'
-    })
-    .then((err,response)=>{
-      console.log(response)
-      return res.send({ message: 'WelCome mail has been sent to your mail.' });
-    })
-    .catch((err)=>{
-      console.log(err)
-    })
+        .insert({
+          user_email: req.query.email_address,
+          email_type: 'Welcome Mail',
+          status: 'sent',
+        })
+        .then((err, response) => {
+          console.log(response);
+          return res.send({
+            message: 'WelCome mail has been sent to your mail.',
+          });
+        })
+        .catch(err => {
+          console.log(err);
+        });
     }
   });
 });

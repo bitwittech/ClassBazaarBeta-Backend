@@ -36,6 +36,7 @@ import session from 'express-session';
 import udemyRoutes from './routes/udemy';
 import userRoutes from './routes/users';
 import userAuth from './routes/userAuth';
+import search from './routes/search';
 
 i18next
   .use(LanguageDetector)
@@ -56,7 +57,6 @@ i18next
     },
   });
 
-  
 const app = express();
 
 app.set('trust proxy', 'loopback');
@@ -74,7 +74,7 @@ app.set('trust proxy', 'loopback');
 // );
 app.use(
   cors({
-    origin: function (origin, callback) {
+    origin: function(origin, callback) {
       return callback(null, true);
     },
     optionsSuccessStatus: 200,
@@ -96,10 +96,9 @@ app.use(
   }),
 );
 
-// Yashwant Sahu added 
+// Yashwant Sahu added
 // set uploads as static
-app.use('/public',express.static(path.join(__dirname, 'public')));
-
+app.use('/public', express.static(path.join(__dirname, 'public')));
 
 app.use(i18nextMiddleware.handle(i18next));
 app.use(passport.initialize());
@@ -112,6 +111,7 @@ app.use(accountRoutes);
 app.use(courseListRoutes);
 app.use(userRoutes);
 app.use(userAuth);
+app.use(search);
 
 // The following routes are intended to be used in development mode only
 if (process.env.NODE_ENV !== 'production') {
@@ -147,7 +147,7 @@ app.get('/graphql/schema', (req, res) => {
 
 app.use(
   '/graphql',
-  expressGraphQL((req) => ({
+  expressGraphQL(req => ({
     schema,
     context: new Context(req),
     graphiql: process.env.NODE_ENV !== 'production',
