@@ -1,0 +1,132 @@
+version: '3'
+
+services:
+  # Data API and authentication/authorization
+  api:
+    image: api
+    build:
+      context: ./
+      args:
+        NODE_ENV: development
+    hostname: api
+    depends_on:
+      - db
+      - redis
+      - pgbouncer
+    environment:
+      - CORS_ORIGIN=http://localhost:3000,http://localhost:3001
+      - DATABASE_URL=postgres://postgres@db:5432/dev
+      - DATABASE_DEBUG=false
+      - REDIS_URL=redis://redis:6379/0
+      - SESSION_SECRET=wZjwhFtzQsd7r87W6AZw45Sm
+      - FACEBOOK_ID=1821424564802638
+      - FACEBOOK_SECRET=2339bdf25f236a42fc3a18280bf455e8
+      - GOOGLE_ID=844357402268-ihn8eo096oqq60irm9sb1gn6n4uh1mf6.apps.googleusercontent.com
+      - GOOGLE_SECRET=IFWufMIOQ5opON-pNIKZhec5
+      - TWITTER_KEY=xxxxx
+      - TWITTER_SECRET=xxxxx
+    ports:
+      - '8082:8080'
+      # - '127.0.0.1:9229:9229' # V8 inspector for tools/run.js
+      # - '127.0.0.1:9230:9230' # V8 inspector for src/server.js
+    volumes:
+      - yarn:/home/node/.cache/yarn
+      - ./build:/usr/src/app/build
+      - ./locales:/usr/src/app/locales
+      - ./migrations:/usr/src/app/migrations
+      - ./seeds:/usr/src/app/seeds
+      - ./src:/usr/src/app/src
+      - ./tools:/usr/src/app/tools
+      - ./.babelrc:/usr/src/app/.babelrc
+      - ./.eslintrc.js:/usr/src/app/.eslintrc.js
+      - ./.gitignore:/usr/src/app/.gitignore
+      - ./.prettierrc:/usr/src/app/.prettierrc
+      - ./package.json:/usr/src/app/package.json
+      - ./yarn.lock:/usr/src/app/yarn.lock
+    command: node tools/run.js # or, `node --inspect=0.0.0.0:9229 tools/run.js`
+
+  # SQL and document data store
+  db:
+    image: postgres
+    command:
+      [
+        '-c',
+        'shared_buffers=1024MB',
+        '-c',
+        'max_connections=400',
+        '-c',
+        'effective_cache_size=1024MB',
+      ]
+    environment:
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=docker
+      - POSTGRES_DB=postgres
+    volumes:
+      - $HOME/docker/volumes/postgres:/var/lib/postgresql/data
+    ports:
+      - '5432:5432'
+
+  pgbouncer:
+    image: brainsam/pgbouncer
+    environment:
+      DB_HOST: db
+      DB_USER: postgres
+      DB_PASSWORD: docker
+      DB_port: 5432
+      DEFAULT_POOL_SIZE: 800
+      MAX_CLIENT_CONN: 5000
+      MAX_DB_CONNECTIONS: 30
+      MAX_USER_CONNECTIONS: 380
+    ports:
+      - '6432:6432'
+
+  # Distributed in-memory cache
+  redis:
+    image: redis:4.0.6-alpine
+    read_only: true
+    volumes:
+      - redis:/data
+    user: redis
+
+  # MongoDB Related
+  mdb-primary:
+    image: 'bitnami/mongodb:latest'
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mdb-primary
+      - MONGODB_REPLICA_SET_MODE=primary
+      - MONGODB_ROOT_PASSWORD=ClassPasswordBazaar2398##
+      - MONGODB_REPLICA_SET_KEY=CBreplicasetkey2019
+    volumes:
+      - 'mongodb_master_data:/bitnami'
+    ports:
+      - '27017:27017'
+
+  mdb-sec:
+    image: 'bitnami/mongodb:latest'
+    depends_on:
+      - mdb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mdb-sec
+      - MONGODB_REPLICA_SET_MODE=secondary
+      - MONGODB_PRIMARY_HOST=mdb-primary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=ClassPasswordBazaar2398##
+      - MONGODB_REPLICA_SET_KEY=CBreplicasetkey2019
+
+  mdb-arb:
+    image: 'bitnami/mongodb:latest'
+    depends_on:
+      - mdb-primary
+    environment:
+      - MONGODB_ADVERTISED_HOSTNAME=mdb-arb
+      - MONGODB_REPLICA_SET_MODE=arbiter
+      - MONGODB_PRIMARY_HOST=mdb-primary
+      - MONGODB_PRIMARY_PORT_NUMBER=27017
+      - MONGODB_PRIMARY_ROOT_PASSWORD=ClassPasswordBazaar2398##
+      - MONGODB_REPLICA_SET_KEY=CBreplicasetkey2019
+
+volumes:
+  redis:
+  yarn:
+  mongodb_master_data:
+    driver: local

@@ -1,0 +1,31 @@
+version: '3'
+
+services:
+  # Data API and authentication/authorization
+  api:
+    image: api
+    hostname: api
+      - CORS_ORIGIN=http://localhost:3000,http://localhost:3001
+    ports:
+      - '8082:8080'
+      # - '127.0.0.1:9229:9229' # V8 inspector for tools/run.js
+      # - '127.0.0.1:9230:9230' # V8 inspector for src/server.js
+    volumes:
+      - yarn:/home/node/.cache/yarn
+      - ./build:/usr/src/app/build
+      - ./locales:/usr/src/app/locales
+      - ./migrations:/usr/src/app/migrations
+      - ./seeds:/usr/src/app/seeds
+      - ./src:/usr/src/app/src
+      - ./tools:/usr/src/app/tools
+      - ./.babelrc:/usr/src/app/.babelrc
+      - ./.eslintrc.js:/usr/src/app/.eslintrc.js
+      - ./.gitignore:/usr/src/app/.gitignore
+      - ./.prettierrc:/usr/src/app/.prettierrc
+      - ./package.json:/usr/src/app/package.json
+      - ./yarn.lock:/usr/src/app/yarn.lock
+    command: node tools/run.js # or, `node --inspect=0.0.0.0:9229 tools/run.js`
+
+volumes:
+  redis:
+  yarn:
